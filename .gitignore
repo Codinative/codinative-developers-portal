@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Environment files — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+
+# Next.js build output
+.next/
+out/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor & system files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Firebase local/emulator data
+.firebase/
+firestore-debug.log
+storage-debug.log
+
+# TypeScript build info
+*.tsbuildinfo
+next-env.d.ts
+
+# Misc cache
+.cache/
+coverage/
