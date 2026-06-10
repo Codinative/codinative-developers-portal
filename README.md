@@ -1,47 +1,64 @@
-# Codinative Dashboard
+# Codinative Apps Dashboard
 
-Internal dashboard for Codinative's BigCommerce apps: live Firestore metrics per
-app + an AES-encrypted secrets vault, behind a single admin login.
+Internal dashboard for Codinative's BigCommerce apps. It pulls **live metrics**
+from each app's Firebase Firestore project and provides an **AES‑encrypted
+secrets vault**, all behind a single admin login.
 
-## Stack
+> 🔒 Internal tool — not public, not indexed. Every route except `/login` is
+> gated by authentication.
+
+## Tech stack
 
 Next.js 15 (App Router) · NextAuth v5 (credentials) · Firebase Admin SDK
-(multi-project) · crypto-js (AES) · bcryptjs · Tailwind v4 · Headless UI + Lucide.
+(multi‑project) · crypto‑js (AES) · bcryptjs · Tailwind CSS v4 · Headless UI +
+Lucide · TypeScript (strict). Package manager: **npm**.
 
-## Architecture notes
+## Quick start
 
-- **Each monitored app is its own Firebase project.** `lib/firebase-admin.ts`
-  initializes one named Admin app per project; credentials are resolved by env
-  prefix (`FB_SIGNUP_*`, `FB_WEIGHT_*`, …). The registry lives in
-  `lib/apps-config.ts`.
-- **The dashboard stores its own data** (the `secrets` collection) in a
-  dedicated Firebase project via `DASHBOARD_FIREBASE_*`.
-- **Auth is split** (`lib/auth.config.ts` edge-safe for middleware,
-  `lib/auth.ts` with the bcrypt Credentials provider for the route handler and
-  Server Actions) so Node-only deps stay out of the Edge middleware bundle.
-- **Secrets never reach the browser encrypted.** They're decrypted only inside
-  `actions/secrets.ts` (`"use server"`) and sent in plaintext to the authed
-  session that asked for them; nothing is logged.
+```bash
+npm install
+cp .env.example .env.local   # then fill it in — see docs/SETUP.md
+npm run dev                  # http://localhost:3000
+```
 
-## Setup
+The app needs Firebase service accounts and a few generated secrets before it's
+fully functional. The complete, copy‑pasteable walkthrough is in
+**[docs/SETUP.md](docs/SETUP.md)** — start there.
 
-1. `npm install`
-2. `cp .env.example .env.local` and fill in:
-   - A service account for the dashboard's own Firebase project (`DASHBOARD_FIREBASE_*`).
-   - A **read-only** service account per monitored project (`FB_SIGNUP_*`, `FB_WEIGHT_*`).
-   - `ENCRYPTION_KEY` — `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-   - `AUTH_SECRET` — `openssl rand -base64 32`
-   - `ADMIN_EMAIL` + `ADMIN_PASSWORD_HASH` — `node -e "require('bcryptjs').hash('pw',12).then(console.log)"`
-3. Apply `firestore.rules` to the dashboard project (Firebase Console → Firestore → Rules).
-4. `npm run dev` → http://localhost:3000
+## 📚 Documentation
 
-## Adding an app
+| Doc | Read it when you want to… |
+|---|---|
+| **[docs/SETUP.md](docs/SETUP.md)** | Get it running locally — env var reference, creating Firebase projects & service accounts, generating secrets |
+| **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Understand how it's built — multi‑project Firebase, the app registry, the auth split, data flow, directory map, and how to add a new app |
+| **[docs/SECURITY.md](docs/SECURITY.md)** | Review the security model and the pre‑deploy checklist |
+| **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Deploy to Vercel and rotate the encryption key |
 
-Add an entry to `APPS` in `lib/apps-config.ts` with a fresh `envPrefix`, then add
-the matching `*_PROJECT_ID` / `*_CLIENT_EMAIL` / `*_PRIVATE_KEY` env vars.
+## Repository layout
 
-## Deploy (Vercel)
+```
+app/                  Next.js App Router
+  (dashboard)/        Authenticated routes: overview (/), /apps/[appId], /secrets
+  login/              Public login page
+  api/auth/           NextAuth route handler
+actions/              Server Actions — secrets, metrics, auth
+components/           UI components (AppCard, StatGrid, SecretRow, …)
+lib/                  firebase-admin, apps-config, crypto, auth(.config), accent
+types/                TypeScript module augmentations
+middleware.ts         Route protection (Edge runtime)
+firestore.rules       Rules for the dashboard's OWN Firebase project
+docs/                 The documentation linked above
+```
 
-Add every `.env.local` var as a Vercel Environment Variable (paste full
-multi-line `*_PRIVATE_KEY` values), set `AUTH_TRUST_HOST=true` and `NEXTAUTH_URL`
-to the deployed URL, then deploy.
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Dev server (Turbopack) on `:3000` |
+| `npm run build` | Production build + full TypeScript typecheck |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint |
+
+## Definition of done for a change
+
+`npm run lint` and `npm run build` both pass with zero errors before you push.
