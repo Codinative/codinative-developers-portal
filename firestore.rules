@@ -12,6 +12,17 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Connected Firebase projects (service-account creds, key encrypted at rest)
+    // — server-side only.
+    match /firebaseProjects/{projectId} {
+      allow read, write: if false;
+    }
+
+    // App config (admin login credentials) — server-side only.
+    match /appConfig/{docId} {
+      allow read, write: if false;
+    }
+
     // Lock down everything else by default.
     match /{document=**} {
       allow read, write: if false;

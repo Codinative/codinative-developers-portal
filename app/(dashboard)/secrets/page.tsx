@@ -1,4 +1,4 @@
-import { APPS } from "@/lib/apps-config";
+import { getAppList } from "@/actions/projects";
 import { getSecretsByApp } from "@/actions/secrets";
 import { SecretRow } from "@/components/SecretRow";
 import { AddSecretForm } from "@/components/AddSecretForm";
@@ -6,18 +6,28 @@ import { AddSecretForm } from "@/components/AddSecretForm";
 export const dynamic = "force-dynamic";
 
 export default async function SecretsPage() {
+  const apps = await getAppList();
   const allSecrets = await Promise.all(
-    APPS.map(async (app) => ({ app, secrets: await getSecretsByApp(app.id) })),
+    apps.map(async (app) => ({ app, secrets: await getSecretsByApp(app.id) })),
   );
 
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-semibold">Secrets manager</h1>
+        <h1 className="text-2xl font-semibold">Secrets &amp; env variables</h1>
         <p className="mt-1 text-sm text-gray-500">
-          All values are AES-encrypted at rest and only decrypted server-side. Revealed values are never logged.
+          Store API keys, tokens and environment variables per project. All
+          values are AES-encrypted at rest and only decrypted server-side —
+          revealed values are never logged.
         </p>
       </div>
+
+      {allSecrets.length === 0 && (
+        <p className="text-sm text-gray-400">
+          No apps yet. Connect a Firebase project in Settings to start storing
+          its secrets here.
+        </p>
+      )}
 
       {allSecrets.map(({ app, secrets }) => (
         <section key={app.id}>

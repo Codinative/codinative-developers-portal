@@ -10,7 +10,7 @@ import { getFirestore, type Firestore } from "firebase-admin/firestore";
 // cache it (firebase-admin keeps a registry keyed by app name).
 // ----------------------------------------------------------------------------
 
-type Creds = {
+export type Creds = {
   projectId?: string;
   clientEmail?: string;
   privateKey?: string;
@@ -62,4 +62,15 @@ export function getAppDb(envPrefix: string): Firestore {
     clientEmail: process.env[`${envPrefix}_CLIENT_EMAIL`],
     privateKey: process.env[`${envPrefix}_PRIVATE_KEY`],
   });
+}
+
+/**
+ * Firestore for a project whose credentials come from the in-app config store
+ * (Settings → Connect Firebase) rather than env vars. The named Admin app is
+ * cached by `name` — use a stable, project-unique name. If a project's stored
+ * credentials change, the new app instance only takes effect on a cold start
+ * (firebase-admin keeps the first-initialized app for a given name).
+ */
+export function getDbFromCreds(name: string, creds: Creds): Firestore {
+  return dbFor(`store:${name}`, creds);
 }

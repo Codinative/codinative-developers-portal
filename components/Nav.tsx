@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, KeyRound, LogOut, ShieldCheck } from "lucide-react";
+import {
+  LayoutDashboard,
+  KeyRound,
+  LogOut,
+  ShieldCheck,
+  Settings,
+} from "lucide-react";
 import { logout } from "@/actions/auth";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
   { href: "/secrets", label: "Secrets", icon: KeyRound },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function Nav({ email }: { email?: string | null }) {

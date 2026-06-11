@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
+import { getEffectiveAdmin } from "./admin-config";
 
 // Full NextAuth instance — includes the bcrypt-backed Credentials provider, so
 // this module is imported only by the route handler and Server Actions (Node
@@ -20,16 +21,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
 
-        // Validate against the single env-stored admin only.
-        const adminEmail = process.env.ADMIN_EMAIL;
-        const adminHash = process.env.ADMIN_PASSWORD_HASH;
-        if (!adminEmail || !adminHash) return null;
-        if (email !== adminEmail) return null;
+        // Validate against the single admin — stored in Firestore if it has
+        // been set from Settings, otherwise the env-var bootstrap default.
+        const admin = await getEffectiveAdmin();
+        if (!admin) return null;
+        if (email.toLowerCase() !== admin.email.toLowerCase()) return null;
 
-        const isValid = await bcrypt.compare(password, adminHash);
+        const isValid = await bcrypt.compare(password, admin.passwordHash);
         if (!isValid) return null;
 
-        return { id: "admin", email, name: "Admin" };
+        return { id: "admin", email: admin.email, name: "Admin" };
       },
     }),
   ],

@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CircleAlert, KeyRound } from "lucide-react";
 import { getAppMetric, getRecentStores } from "@/actions/metrics";
-import { getAppById } from "@/lib/apps-config";
 import { StatGrid } from "@/components/StatGrid";
 import { ActivityFeed } from "@/components/ActivityFeed";
 
@@ -14,8 +13,6 @@ export default async function AppDetailPage({
   params: Promise<{ appId: string }>;
 }) {
   const { appId } = await params;
-  const config = getAppById(appId);
-  if (!config) notFound();
 
   const [metric, stores] = await Promise.all([
     getAppMetric(appId),
@@ -34,8 +31,8 @@ export default async function AppDetailPage({
         </Link>
         <div className="mt-2 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold">{config.name}</h1>
-            <p className="mt-1 text-sm text-gray-500">{config.description}</p>
+            <h1 className="text-2xl font-semibold">{metric.name}</h1>
+            <p className="mt-1 text-sm text-gray-500">{metric.description}</p>
           </div>
           <Link
             href="/secrets"
@@ -56,7 +53,7 @@ export default async function AppDetailPage({
           <h2 className="text-base font-medium">Metrics</h2>
           <StatGrid
             stats={[
-              { label: config.installs.label, value: metric.installs },
+              { label: metric.installsLabel, value: metric.installs },
               ...metric.metrics.map((m) => ({ label: m.label, value: m.count })),
             ]}
           />
