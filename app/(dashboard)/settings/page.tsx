@@ -1,16 +1,36 @@
-import { Database } from "lucide-react";
+import { Database, Sparkles, CircleCheck, CircleAlert } from "lucide-react";
 import { getConnectedProjects } from "@/actions/projects";
 import { getAccountInfo } from "@/actions/account";
+import { getGoogleStatus } from "@/actions/google";
 import { ConnectFirebaseForm } from "@/components/ConnectFirebaseForm";
 import { ConnectedProjectCard } from "@/components/ConnectedProjectCard";
 import { AccountSettingsForm } from "@/components/AccountSettingsForm";
+import { GoogleConnectionCard } from "@/components/GoogleConnectionCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function SettingsPage() {
-  const [projects, account] = await Promise.all([
+const FLASH: Record<string, { ok: boolean; text: string }> = {
+  connected: { ok: true, text: "Google account connected." },
+  denied: { ok: false, text: "Google connection was cancelled." },
+  error: { ok: false, text: "Google connection failed — please try again." },
+  "not-configured": {
+    ok: false,
+    text: "Google OAuth isn't configured (set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET).",
+  },
+};
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ google?: string }>;
+}) {
+  const { google } = await searchParams;
+  const flash = google ? FLASH[google] : undefined;
+
+  const [projects, account, googleStatus] = await Promise.all([
     getConnectedProjects(),
     getAccountInfo(),
+    getGoogleStatus(),
   ]);
 
   return (
@@ -21,6 +41,38 @@ export default async function SettingsPage() {
           Connect Firebase projects and manage your login — no redeploy needed.
         </p>
       </div>
+
+      {flash && (
+        <div
+          className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm ${
+            flash.ok
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border-amber-200 bg-amber-50 text-amber-800"
+          }`}
+        >
+          {flash.ok ? (
+            <CircleCheck className="h-4 w-4" />
+          ) : (
+            <CircleAlert className="h-4 w-4" />
+          )}
+          {flash.text}
+        </div>
+      )}
+
+      {/* Auto-discover via Google */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-base font-medium">
+            <Sparkles className="h-4 w-4 text-gray-500" />
+            Auto-discover with Google
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Connect the Google account that owns your Firebase projects to list
+            and add them automatically — no service-account JSON needed.
+          </p>
+        </div>
+        <GoogleConnectionCard status={googleStatus} />
+      </section>
 
       {/* Connected Firebase projects */}
       <section className="space-y-4">
@@ -50,8 +102,12 @@ export default async function SettingsPage() {
 
         <div className="pt-2">
           <h3 className="mb-2 text-sm font-medium text-gray-700">
-            Connect a new project
+            Connect a project manually (service-account JSON)
           </h3>
+          <p className="mb-2 text-xs text-gray-400">
+            Use this when you&apos;d rather not connect Google, or for a project
+            owned by a different account.
+          </p>
           <ConnectFirebaseForm />
         </div>
       </section>

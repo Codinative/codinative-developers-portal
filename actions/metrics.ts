@@ -7,8 +7,6 @@ import {
   type EffectiveApp,
   type AccentColor,
 } from "@/lib/projects-store";
-import type { MetricSpec } from "@/lib/apps-config";
-import type { Firestore } from "firebase-admin/firestore";
 
 async function requireAuth() {
   const session = await auth();
@@ -36,17 +34,6 @@ export type StoreActivity = {
   uninstalled: boolean;
 };
 
-// Count a metric spec, transparently using a collectionGroup query for
-// sub-collections (e.g. stores/{hash}/signupRequests).
-async function countSpec(db: Firestore, spec: MetricSpec): Promise<number> {
-  const ref =
-    spec.kind === "collectionGroup"
-      ? db.collectionGroup(spec.path)
-      : db.collection(spec.path);
-  const snap = await ref.count().get();
-  return snap.data().count;
-}
-
 async function resolveApp(app: EffectiveApp): Promise<AppMetrics> {
   const base = {
     id: app.id,
@@ -56,12 +43,11 @@ async function resolveApp(app: EffectiveApp): Promise<AppMetrics> {
     installsLabel: app.installs.label,
   };
   try {
-    const db = app.getDb();
-    const installs = await countSpec(db, app.installs);
+    const installs = await app.count(app.installs);
     const metrics = await Promise.all(
       app.metrics.map(async (m) => ({
         label: m.label,
-        count: await countSpec(db, m),
+        count: await app.count(m),
       })),
     );
     return { ...base, installs, metrics, status: "live" };
@@ -109,23 +95,7 @@ export async function getRecentStores(
   const app = await getEffectiveAppById(appId);
   if (!app) return [];
   try {
-    const snap = await app
-      .getDb()
-      .collection(app.installs.path)
-      .limit(max)
-      .get();
-    return snap.docs.map((d) => {
-      const data = d.data();
-      return {
-        storeHash: d.id,
-        scope: typeof data.scope === "string" ? data.scope : undefined,
-        subscriptionStatus:
-          typeof data.subscriptionStatus === "string"
-            ? data.subscriptionStatus
-            : undefined,
-        uninstalled: Boolean(data.uninstalled || data.uninstalledAt),
-      };
-    });
+    return await app.listStores(app.installs.path, max);
   } catch {
     return [];
   }

@@ -12,16 +12,32 @@
 // firebase-admin + crypto) — never import it from a Client Component.
 // ----------------------------------------------------------------------------
 
-import { FieldValue, type Firestore } from "firebase-admin/firestore";
+import {
+  FieldValue,
+  type Firestore,
+  type DocumentData,
+} from "firebase-admin/firestore";
 import {
   getDashboardDb,
   getAppDb,
   getDbFromCreds,
 } from "@/lib/firebase-admin";
 import { encrypt, decrypt } from "@/lib/crypto";
+import { countViaRest, listDocsViaRest } from "@/lib/firestore-rest";
 import { APPS, type AppConfig, type MetricSpec } from "@/lib/apps-config";
 
 export type AccentColor = AppConfig["color"];
+
+/** How a connected project's Firestore is read. */
+export type ConnectionKind = "service-account" | "google";
+
+/** A sampled store doc for the activity feed (source-agnostic). */
+export type StoreSample = {
+  storeHash: string;
+  scope?: string;
+  subscriptionStatus?: string;
+  uninstalled: boolean;
+};
 
 const ACCENT_COLORS: AccentColor[] = [
   "blue",
@@ -41,6 +57,7 @@ type ProjectRecord = {
   name: string;
   description: string;
   color: AccentColor;
+  connection: ConnectionKind;
   firebaseProjectId: string;
   clientEmail: string;
   privateKey: string; // decrypted — NEVER send this to the browser
@@ -55,6 +72,7 @@ export type ProjectSummary = {
   name: string;
   description: string;
   color: AccentColor;
+  connection: ConnectionKind;
   firebaseProjectId: string;
   clientEmailMasked: string;
   metricLabels: string[];
@@ -62,8 +80,15 @@ export type ProjectSummary = {
   error?: string;
 };
 
+// Source-agnostic counters: a project reads via either the Admin SDK
+// (service-account) or the Firestore REST API (Google OAuth).
+type Counters = {
+  count: (spec: MetricSpec) => Promise<number>;
+  listStores: (path: string, max: number) => Promise<StoreSample[]>;
+};
+
 // A resolved app the rest of the dashboard iterates over, regardless of whether
-// it came from env vars or the connected-projects store.
+// it came from env vars, a stored service account, or a connected Google account.
 export type EffectiveApp = {
   id: string;
   name: string;
@@ -71,9 +96,8 @@ export type EffectiveApp = {
   color: AccentColor;
   installs: MetricSpec;
   metrics: MetricSpec[];
-  source: "env" | "store";
-  getDb: () => Firestore;
-};
+  source: "env" | "store" | "google";
+} & Counters;
 
 export type ConnectInput = {
   name: string;
@@ -210,6 +234,7 @@ async function readRecords(): Promise<ProjectRecord[]> {
       name: typeof d.name === "string" ? d.name : doc.id,
       description: typeof d.description === "string" ? d.description : "",
       color: normalizeColor(d.color),
+      connection: d.connection === "google" ? "google" : "service-account",
       firebaseProjectId:
         typeof d.firebaseProjectId === "string" ? d.firebaseProjectId : "",
       clientEmail: typeof d.clientEmail === "string" ? d.clientEmail : "",
@@ -220,6 +245,58 @@ async function readRecords(): Promise<ProjectRecord[]> {
   });
 }
 
+// Map a raw store doc into the source-agnostic sample shape.
+function mapStoreData(data: DocumentData): Omit<StoreSample, "storeHash"> {
+  return {
+    scope: typeof data.scope === "string" ? data.scope : undefined,
+    subscriptionStatus:
+      typeof data.subscriptionStatus === "string"
+        ? data.subscriptionStatus
+        : undefined,
+    uninstalled: Boolean(data.uninstalled || data.uninstalledAt),
+  };
+}
+
+// Counters backed by the Admin SDK (env + service-account projects).
+function adminCounters(getDb: () => Firestore): Counters {
+  return {
+    count: async (spec) => {
+      const ref =
+        spec.kind === "collectionGroup"
+          ? getDb().collectionGroup(spec.path)
+          : getDb().collection(spec.path);
+      return (await ref.count().get()).data().count;
+    },
+    listStores: async (path, max) => {
+      const snap = await getDb().collection(path).limit(max).get();
+      return snap.docs.map((d) => ({
+        storeHash: d.id,
+        ...mapStoreData(d.data()),
+      }));
+    },
+  };
+}
+
+// Counters backed by the Firestore REST API (Google-OAuth projects).
+function googleCounters(projectId: string): Counters {
+  return {
+    count: (spec) => countViaRest(projectId, spec),
+    listStores: (path, max) => listDocsViaRest(projectId, path, max),
+  };
+}
+
+function countersFor(r: ProjectRecord): Counters {
+  return r.connection === "google"
+    ? googleCounters(r.firebaseProjectId)
+    : adminCounters(() =>
+        getDbFromCreds(r.firebaseProjectId || r.appId, {
+          projectId: r.firebaseProjectId,
+          clientEmail: r.clientEmail,
+          privateKey: r.privateKey,
+        }),
+      );
+}
+
 function recordToEffective(r: ProjectRecord): EffectiveApp {
   return {
     id: r.appId,
@@ -228,13 +305,8 @@ function recordToEffective(r: ProjectRecord): EffectiveApp {
     color: r.color,
     installs: r.installs,
     metrics: r.metrics,
-    source: "store",
-    getDb: () =>
-      getDbFromCreds(r.firebaseProjectId || r.appId, {
-        projectId: r.firebaseProjectId,
-        clientEmail: r.clientEmail,
-        privateKey: r.privateKey,
-      }),
+    source: r.connection === "google" ? "google" : "store",
+    ...countersFor(r),
   };
 }
 
@@ -247,7 +319,7 @@ function envToEffective(a: AppConfig): EffectiveApp {
     installs: a.installs,
     metrics: a.metrics,
     source: "env",
-    getDb: () => getAppDb(a.envPrefix),
+    ...adminCounters(() => getAppDb(a.envPrefix)),
   };
 }
 
@@ -268,6 +340,13 @@ export async function getEffectiveAppById(
   return apps.find((a) => a.id === id) ?? null;
 }
 
+/** firebaseProjectIds already added to the dashboard — used to mark which
+ *  Google-discovered projects are already monitored. */
+export async function listProjectFirebaseIds(): Promise<string[]> {
+  const records = await readRecords();
+  return records.map((r) => r.firebaseProjectId).filter(Boolean);
+}
+
 /** Browser-safe summaries for the Settings page, each with a live/error status
  *  from a lightweight connectivity probe. */
 export async function listProjectSummaries(): Promise<ProjectSummary[]> {
@@ -277,17 +356,13 @@ export async function listProjectSummaries(): Promise<ProjectSummary[]> {
       let status: "live" | "error" = "live";
       let error: string | undefined;
       try {
-        await getDbFromCreds(r.firebaseProjectId || r.appId, {
-          projectId: r.firebaseProjectId,
-          clientEmail: r.clientEmail,
-          privateKey: r.privateKey,
-        })
-          .collection(r.installs.path)
-          .limit(1)
-          .get();
+        await countersFor(r).count(r.installs);
       } catch {
         status = "error";
-        error = "Could not read this project's Firestore (check the key).";
+        error =
+          r.connection === "google"
+            ? "Could not read this project (re-connect Google or check Firestore)."
+            : "Could not read this project's Firestore (check the key).";
       }
       return {
         id: r.id,
@@ -295,8 +370,12 @@ export async function listProjectSummaries(): Promise<ProjectSummary[]> {
         name: r.name,
         description: r.description,
         color: r.color,
+        connection: r.connection,
         firebaseProjectId: r.firebaseProjectId,
-        clientEmailMasked: maskEmail(r.clientEmail),
+        clientEmailMasked:
+          r.connection === "google"
+            ? "via Google account"
+            : maskEmail(r.clientEmail),
         metricLabels: [r.installs.label, ...r.metrics.map((m) => m.label)],
         status,
         error,
@@ -378,9 +457,82 @@ export async function addProjectRecord(
     name,
     description: `Firebase project ${sa.projectId}`,
     color: normalizeColor(input.color),
+    connection: "service-account",
     firebaseProjectId: sa.projectId,
     clientEmail: sa.clientEmail,
     privateKey: encrypt(sa.privateKey), // encrypted at rest
+    installs,
+    metrics,
+    addedAt: FieldValue.serverTimestamp(),
+    addedBy,
+  });
+
+  return { success: true };
+}
+
+/** Add a Firebase project discovered through the connected Google account.
+ *  No service-account key is stored — reads go through the OAuth token. */
+export async function addGoogleProjectRecord(
+  projectId: string,
+  displayName: string,
+  addedBy: string,
+): Promise<ActionResult> {
+  if (!projectId) return { success: false, error: "Missing project id." };
+  const name = displayName?.trim() || projectId;
+  const appId = slugify(name) || slugify(projectId);
+  if (!appId)
+    return { success: false, error: "Could not derive an id for this project." };
+
+  const db = getDashboardDb();
+
+  const dupSlug = await db
+    .collection(COLLECTION)
+    .where("appId", "==", appId)
+    .limit(1)
+    .get();
+  if (!dupSlug.empty) {
+    return {
+      success: false,
+      error: `"${name}" (id "${appId}") is already added.`,
+    };
+  }
+  const dupProject = await db
+    .collection(COLLECTION)
+    .where("firebaseProjectId", "==", projectId)
+    .limit(1)
+    .get();
+  if (!dupProject.empty) {
+    return { success: false, error: `Project ${projectId} is already added.` };
+  }
+
+  const installs: MetricSpec = {
+    label: "Installs",
+    kind: "collection",
+    path: "stores",
+  };
+  const metrics: MetricSpec[] = [
+    { label: "Admin users", kind: "collection", path: "users" },
+  ];
+
+  // Verify we can actually read it through the OAuth token before adding.
+  try {
+    await googleCounters(projectId).count(installs);
+  } catch {
+    return {
+      success: false,
+      error:
+        "Connected to Google, but couldn't read this project's Firestore. " +
+        "Make sure Firestore is enabled on it.",
+    };
+  }
+
+  await db.collection(COLLECTION).add({
+    appId,
+    name,
+    description: `Firebase project ${projectId} (via Google)`,
+    color: "slate",
+    connection: "google",
+    firebaseProjectId: projectId,
     installs,
     metrics,
     addedAt: FieldValue.serverTimestamp(),

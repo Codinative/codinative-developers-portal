@@ -25,7 +25,7 @@ export type AppListItem = {
   name: string;
   description: string;
   color: AccentColor;
-  source: "env" | "store";
+  source: "env" | "store" | "google";
 };
 
 export async function getAppList(): Promise<AppListItem[]> {

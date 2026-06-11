@@ -30,7 +30,7 @@ fully functional. The complete, copy‑pasteable walkthrough is in
 | Doc | Read it when you want to… |
 |---|---|
 | **[docs/SETUP.md](docs/SETUP.md)** | Get it running locally — env var reference, creating Firebase projects & service accounts, generating secrets |
-| **[docs/SETTINGS.md](docs/SETTINGS.md)** | Configure it at runtime — connect Firebase projects and change the admin login from the in‑app **Settings** page, no redeploy |
+| **[docs/SETTINGS.md](docs/SETTINGS.md)** | Configure it at runtime — auto‑discover Firebase projects via Google OAuth or paste a service account, and change the admin login, all from the in‑app **Settings** page (no redeploy). Includes the Google Cloud OAuth setup walkthrough |
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Understand how it's built — multi‑project Firebase, the app registry, the auth split, data flow, directory map, and how to add a new app |
 | **[docs/SECURITY.md](docs/SECURITY.md)** | Review the security model and the pre‑deploy checklist |
 | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | Deploy to Vercel and rotate the encryption key |
