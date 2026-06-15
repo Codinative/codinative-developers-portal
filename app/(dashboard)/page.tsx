@@ -12,8 +12,8 @@ export default async function OverviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">Overview</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Overview</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Live metrics across every BigCommerce app, pulled from each app&apos;s Firestore project.
         </p>
       </div>

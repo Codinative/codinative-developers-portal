@@ -36,8 +36,8 @@ export default async function SettingsPage({
   return (
     <div className="space-y-12">
       <div>
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Settings</h1>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Connect Firebase projects and manage your login — no redeploy needed.
         </p>
       </div>
@@ -46,8 +46,8 @@ export default async function SettingsPage({
         <div
           className={`flex items-center gap-2 rounded-lg border px-4 py-3 text-sm ${
             flash.ok
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-              : "border-amber-200 bg-amber-50 text-amber-800"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300"
+              : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300"
           }`}
         >
           {flash.ok ? (
@@ -62,11 +62,11 @@ export default async function SettingsPage({
       {/* Auto-discover via Google */}
       <section className="space-y-4">
         <div>
-          <h2 className="flex items-center gap-2 text-base font-medium">
-            <Sparkles className="h-4 w-4 text-gray-500" />
+          <h2 className="flex items-center gap-2 text-base font-medium text-gray-900 dark:text-gray-100">
+            <Sparkles className="h-4 w-4 text-indigo-500" />
             Auto-discover with Google
           </h2>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Connect the Google account that owns your Firebase projects to list
             and add them automatically — no service-account JSON needed.
           </p>
@@ -77,17 +77,17 @@ export default async function SettingsPage({
       {/* Connected Firebase projects */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-base font-medium">
-            <Database className="h-4 w-4 text-gray-500" />
+          <h2 className="flex items-center gap-2 text-base font-medium text-gray-900 dark:text-gray-100">
+            <Database className="h-4 w-4 text-gray-500 dark:text-gray-400" />
             Connected Firebase projects
           </h2>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-gray-400 dark:text-gray-500">
             {projects.length} connected
           </span>
         </div>
 
         {projects.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-400">
+          <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-gray-400 dark:border-gray-700 dark:bg-gray-900/50 dark:text-gray-500">
             No Firebase projects connected from the UI yet. Apps configured via
             environment variables still work — connect one below to manage it
             here instead.
@@ -101,10 +101,10 @@ export default async function SettingsPage({
         )}
 
         <div className="pt-2">
-          <h3 className="mb-2 text-sm font-medium text-gray-700">
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             Connect a project manually (service-account JSON)
           </h3>
-          <p className="mb-2 text-xs text-gray-400">
+          <p className="mb-2 text-xs text-gray-400 dark:text-gray-500">
             Use this when you&apos;d rather not connect Google, or for a project
             owned by a different account.
           </p>
@@ -114,7 +114,7 @@ export default async function SettingsPage({
 
       {/* Admin login */}
       <section className="space-y-4">
-        <h2 className="text-base font-medium">Login credentials</h2>
+        <h2 className="text-base font-medium text-gray-900 dark:text-gray-100">Login credentials</h2>
         <AccountSettingsForm
           currentEmail={account.email}
           source={account.source}

@@ -36,34 +36,36 @@ export function SecretRow({ id, secretKey, value, addedAt }: Props) {
   }
 
   return (
-    <tr className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
-      <td className="px-4 py-3 font-mono text-sm font-medium">{secretKey}</td>
-      <td className="px-4 py-3 font-mono text-sm break-all text-gray-600">
+    <tr className="border-b border-gray-100 transition last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/50">
+      <td className="px-4 py-3 font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
+        {secretKey}
+      </td>
+      <td className="px-4 py-3 font-mono text-sm break-all text-gray-600 dark:text-gray-400">
         {revealed ? value : maskValue(value)}
       </td>
-      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-400">
+      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-400 dark:text-gray-500">
         {addedAt ? new Date(addedAt).toLocaleDateString() : "—"}
       </td>
       <td className="px-4 py-3">
         <div className="flex justify-end gap-1.5">
           <button
             onClick={() => setRevealed((v) => !v)}
-            className="inline-flex items-center gap-1 rounded border border-gray-200 px-2 py-1 text-xs hover:bg-gray-100"
+            className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
           >
             {revealed ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             {revealed ? "Hide" : "Reveal"}
           </button>
           <button
             onClick={handleCopy}
-            className="inline-flex items-center gap-1 rounded border border-gray-200 px-2 py-1 text-xs hover:bg-gray-100"
+            className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
           >
-            {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
             {copied ? "Copied" : "Copy"}
           </button>
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="inline-flex items-center gap-1 rounded border border-rose-200 px-2 py-1 text-xs text-rose-600 hover:bg-rose-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1 rounded-md border border-rose-200 px-2 py-1 text-xs text-rose-600 transition hover:bg-rose-50 disabled:opacity-50 dark:border-rose-500/30 dark:text-rose-400 dark:hover:bg-rose-500/10"
           >
             <Trash2 className="h-3.5 w-3.5" />
             {isDeleting ? "Deleting…" : "Delete"}

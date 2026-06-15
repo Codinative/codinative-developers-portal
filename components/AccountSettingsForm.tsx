@@ -4,6 +4,9 @@ import { useState, useTransition } from "react";
 import { Save } from "lucide-react";
 import { updateAdminCredentials } from "@/actions/account";
 
+const inputClass =
+  "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder-gray-500";
+
 export function AccountSettingsForm({
   currentEmail,
   source,
@@ -45,9 +48,9 @@ export function AccountSettingsForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 rounded-xl border border-gray-200 bg-white p-5"
+      className="space-y-4 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
     >
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 dark:text-gray-500">
         {source === "env"
           ? "Login currently comes from environment variables. Saving here stores it in the database and takes over."
           : source === "store"
@@ -56,54 +59,58 @@ export function AccountSettingsForm({
       </p>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Login email
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none sm:w-2/3"
+          className={`${inputClass} sm:w-2/3`}
           autoComplete="username"
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Current password
           </label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             autoComplete="current-password"
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
             New password{" "}
-            <span className="font-normal text-gray-400">(optional)</span>
+            <span className="font-normal text-gray-400 dark:text-gray-500">(optional)</span>
           </label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Leave blank to keep current"
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+            className={inputClass}
             autoComplete="new-password"
           />
         </div>
       </div>
 
-      {error && <p className="text-sm text-rose-600">{error}</p>}
-      {done && <p className="text-sm text-emerald-600">Credentials updated.</p>}
+      {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+      {done && (
+        <p className="text-sm text-emerald-600 dark:text-emerald-400">
+          Credentials updated.
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:outline-none disabled:opacity-50"
       >
         <Save className="h-4 w-4" />
         {isPending ? "Saving…" : "Save credentials"}
