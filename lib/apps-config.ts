@@ -28,42 +28,27 @@ export type AppConfig = {
   metrics: MetricSpec[];
 };
 
-export const APPS: AppConfig[] = [
-  {
-    id: "custom-signup-forms",
-    name: "Custom Signup Forms",
-    description:
-      "Custom BigCommerce signup forms, email templates & request management.",
-    envPrefix: "FB_SIGNUP", // project: bc-signup-customisation-app
-    color: "blue",
-    installs: { label: "Installs", kind: "collection", path: "stores" },
-    metrics: [
-      { label: "Admin users", kind: "collection", path: "users" },
-      {
-        label: "Signup requests",
-        kind: "collectionGroup",
-        path: "signupRequests",
-      },
-      { label: "Form versions", kind: "collectionGroup", path: "formVersions" },
-    ],
-  },
-  {
-    id: "weight-based-shipping-charge",
-    name: "Weight-Based Shipping",
-    description:
-      "UPS weight-based shipping rate provider for BigCommerce checkout.",
-    envPrefix: "FB_WEIGHT", // project: bc-weight-based-shipping
-    color: "green",
-    installs: { label: "Installs", kind: "collection", path: "stores" },
-    metrics: [
-      { label: "Admin users", kind: "collection", path: "users" },
-      { label: "Settings docs", kind: "collection", path: "settings" },
-    ],
-  },
-  // To add `shipping` / `shipping-app`: copy an entry above, set a fresh
-  // envPrefix (e.g. FB_SHIPPING) and add the matching *_PROJECT_ID /
-  // *_CLIENT_EMAIL / *_PRIVATE_KEY env vars for that project's service account.
-];
+// Apps are now connected at runtime from the Settings page (Google OAuth or a
+// pasted service-account JSON) and stored in Firestore — see lib/projects-store.ts.
+// This static registry is the env-var-based alternative: add an entry here ONLY
+// if you want an app wired purely through *_PROJECT_ID / *_CLIENT_EMAIL /
+// *_PRIVATE_KEY env vars instead of the UI. Leaving it empty means the dashboard
+// shows exactly what you connect in Settings (no placeholder/error cards).
+//
+// Example (uncomment + set FB_SIGNUP_* env vars to use):
+// {
+//   id: "custom-signup-forms",
+//   name: "Custom Signup Forms",
+//   description: "Custom BigCommerce signup forms & request management.",
+//   envPrefix: "FB_SIGNUP",
+//   color: "blue",
+//   installs: { label: "Installs", kind: "collection", path: "stores" },
+//   metrics: [
+//     { label: "Admin users", kind: "collection", path: "users" },
+//     { label: "Signup requests", kind: "collectionGroup", path: "signupRequests" },
+//   ],
+// },
+export const APPS: AppConfig[] = [];
 
 export function getAppById(id: string): AppConfig | undefined {
   return APPS.find((a) => a.id === id);

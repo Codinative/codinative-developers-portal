@@ -3,6 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
 import { getEffectiveAdmin } from "./admin-config";
+import { sendLoginAlert } from "./notify";
 
 // Full NextAuth instance — includes the bcrypt-backed Credentials provider, so
 // this module is imported only by the route handler and Server Actions (Node
@@ -16,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
         if (!email || !password) return null;
@@ -29,6 +30,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const isValid = await bcrypt.compare(password, admin.passwordHash);
         if (!isValid) return null;
+
+        // Fire a login-alert email (no-op unless SMTP is configured; never
+        // throws — a mail failure must not block a valid login).
+        try {
+          const headers = request?.headers;
+          const ip =
+            headers?.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            headers?.get("x-real-ip") ||
+            "unknown";
+          const userAgent = headers?.get("user-agent") || "unknown";
+          await sendLoginAlert({
+            email: admin.email,
+            ip,
+            userAgent,
+            when: new Date().toISOString(),
+          });
+        } catch {
+          /* already handled inside sendLoginAlert */
+        }
 
         return { id: "admin", email: admin.email, name: "Admin" };
       },

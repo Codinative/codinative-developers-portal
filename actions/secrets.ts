@@ -28,29 +28,32 @@ type ActionResult = { success: boolean; error?: string };
 export async function getSecretsByApp(appId: string): Promise<Secret[]> {
   await requireAuth();
 
+  // Filter by appId only (no orderBy) so Firestore doesn't require a composite
+  // index — the vault is small, so we sort newest-first in memory.
   const snap = await getDashboardDb()
     .collection("secrets")
     .where("appId", "==", appId)
-    .orderBy("addedAt", "desc")
     .get();
 
-  return snap.docs.map((doc) => {
-    const data = doc.data();
-    let decryptedValue = "";
-    try {
-      decryptedValue = decrypt(data.value);
-    } catch {
-      decryptedValue = "[decryption error]";
-    }
-    return {
-      id: doc.id,
-      appId: data.appId,
-      key: data.key,
-      value: decryptedValue,
-      addedAt: data.addedAt?.toDate?.()?.toISOString() ?? "",
-      addedBy: data.addedBy ?? "unknown",
-    };
-  });
+  return snap.docs
+    .map((doc) => {
+      const data = doc.data();
+      let decryptedValue = "";
+      try {
+        decryptedValue = decrypt(data.value);
+      } catch {
+        decryptedValue = "[decryption error]";
+      }
+      return {
+        id: doc.id,
+        appId: data.appId,
+        key: data.key,
+        value: decryptedValue,
+        addedAt: data.addedAt?.toDate?.()?.toISOString() ?? "",
+        addedBy: data.addedBy ?? "unknown",
+      };
+    })
+    .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 }
 
 // Add a new secret (stored encrypted).

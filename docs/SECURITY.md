@@ -48,6 +48,22 @@ deliberately conservative. Read this before changing anything in `lib/crypto.ts`
 
 ---
 
+## Login alerts (optional)
+
+Every **successful** login can email an alert (account, time, IP, device) to
+`LOGIN_ALERT_EMAIL` via SMTP — see [`lib/notify.ts`](../lib/notify.ts), wired
+into the credentials provider in [`lib/auth.ts`](../lib/auth.ts).
+
+- Toggle with `LOGIN_ALERT_ENABLED` (default on; set `false` to disable without
+  removing SMTP creds). Sends only when SMTP is configured.
+- Fires on success only (not failed attempts); a delivery failure is logged but
+  **never** blocks login. SMTP calls are time-capped so a flaky server can't
+  hang the login response.
+- For Gmail, use an **App Password** (requires 2-Step Verification), not the
+  account password. `SMTP_PASS` is a secret — env only.
+
+---
+
 ## Firestore rules
 
 - The **dashboard** project applies [`firestore.rules`](../firestore.rules):
