@@ -18,8 +18,13 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // App config (admin login credentials) — server-side only.
+    // App config (admin login credentials, Google token) — server-side only.
     match /appConfig/{docId} {
+      allow read, write: if false;
+    }
+
+    // Login OTP codes (hashed, short-lived) — server-side only.
+    match /loginOtps/{docId} {
       allow read, write: if false;
     }
 

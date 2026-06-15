@@ -48,6 +48,28 @@ deliberately conservative. Read this before changing anything in `lib/crypto.ts`
 
 ---
 
+## Two-step login (email OTP, optional)
+
+A second factor on top of the password: after the password is verified, an
+**8-digit code** is emailed and required to finish signing in. See
+[`lib/login-otp.ts`](../lib/login-otp.ts) and the two-step
+[`app/login/page.tsx`](<../app/login/page.tsx>).
+
+- **8-digit** code from a CSPRNG (`crypto.randomInt`), **2-minute** expiry,
+  **single-use**, locked after **5** wrong attempts.
+- Only the **bcrypt hash** of the code is stored (Firestore `loginOtps`,
+  server-locked in [`firestore.rules`](../firestore.rules)); the plaintext only
+  ever goes out in the email.
+- Toggle with `LOGIN_OTP_ENABLED` (default on). It is **automatically off when
+  SMTP isn't configured**, so a missing mail setup can't lock you out. To force
+  it off, set `LOGIN_OTP_ENABLED=false`.
+- The session is only minted after both factors pass — the credentials provider
+  re-checks the password and the code together
+  ([`lib/auth.ts`](../lib/auth.ts)).
+
+> Email OTP's strength is bounded by your inbox security. For maximum security,
+> a TOTP authenticator app is the stronger second factor (future option).
+
 ## Login alerts (optional)
 
 Every **successful** login can email an alert (account, time, IP, device) to
