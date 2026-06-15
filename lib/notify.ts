@@ -8,6 +8,7 @@
 // ----------------------------------------------------------------------------
 
 import nodemailer, { type Transporter } from "nodemailer";
+import { otpEmail, loginAlertEmail } from "@/lib/email-templates";
 
 export type LoginAlert = {
   email: string;
@@ -51,20 +52,13 @@ export async function sendLoginAlert(alert: LoginAlert): Promise<void> {
   if (!isSmtpConfigured()) return; // SMTP not configured — nothing to do
 
   try {
+    const { html, text } = loginAlertEmail(alert);
     await buildTransporter().sendMail({
       from: `"Codinative Dashboard" <${process.env.SMTP_USER}>`,
       to: process.env.LOGIN_ALERT_EMAIL,
       subject: `🔐 Dashboard login — ${alert.email}`,
-      text: [
-        "A successful login to the Codinative Dashboard just occurred.",
-        "",
-        `Account: ${alert.email}`,
-        `Time:    ${alert.when}`,
-        `IP:      ${alert.ip}`,
-        `Device:  ${alert.userAgent}`,
-        "",
-        "If this wasn't you, change the password in Settings → Login credentials immediately.",
-      ].join("\n"),
+      text,
+      html,
     });
   } catch (err) {
     console.error(
@@ -82,17 +76,12 @@ export async function sendOtpCode(
   code: string,
   ttlMinutes: number,
 ): Promise<void> {
+  const { html, text } = otpEmail(code, ttlMinutes);
   await buildTransporter().sendMail({
     from: `"Codinative Dashboard" <${process.env.SMTP_USER}>`,
     to: toEmail,
     subject: `Your dashboard login code: ${code}`,
-    text: [
-      `Your Codinative Dashboard verification code is:`,
-      "",
-      `    ${code}`,
-      "",
-      `It expires in ${ttlMinutes} minute${ttlMinutes === 1 ? "" : "s"} and can be used once.`,
-      "If you didn't try to sign in, someone may have your password — change it.",
-    ].join("\n"),
+    text,
+    html,
   });
 }

@@ -39,19 +39,21 @@ function generateCode(): string {
   return String(randomInt(0, 10 ** CODE_DIGITS)).padStart(CODE_DIGITS, "0");
 }
 
-/** Generate a code, store its hash, and email the plaintext. Throws if the
- *  email fails to send (so the caller can surface it instead of trapping the
- *  user on a code screen for a code that never arrives). */
-export async function issueLoginCode(email: string): Promise<void> {
+/** Generate a code, store its hash, and email the plaintext. Returns the
+ *  expiry timestamp (epoch ms) so the UI can show an accurate countdown. Throws
+ *  if the email fails to send (so the caller can surface it instead of trapping
+ *  the user on a code screen for a code that never arrives). */
+export async function issueLoginCode(email: string): Promise<number> {
   const code = generateCode();
   const hash = await bcrypt.hash(code, 10);
+  const expiresAt = Date.now() + TTL_MS;
 
   await getDashboardDb()
     .collection(COLLECTION)
     .doc(docId(email))
     .set({
       hash,
-      expiresAt: Date.now() + TTL_MS,
+      expiresAt,
       attempts: 0,
       createdAt: FieldValue.serverTimestamp(),
     });
@@ -63,6 +65,8 @@ export async function issueLoginCode(email: string): Promise<void> {
     await getDashboardDb().collection(COLLECTION).doc(docId(email)).delete().catch(() => {});
     throw err instanceof Error ? err : new Error("Failed to send code");
   }
+
+  return expiresAt;
 }
 
 /** Verify a submitted code. Single-use on success; counts attempts and locks

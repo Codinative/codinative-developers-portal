@@ -9,6 +9,7 @@ import { otpEnabled, issueLoginCode } from "@/lib/login-otp";
 export type LoginStep1 = {
   ok: boolean;
   otpRequired?: boolean;
+  expiresAt?: number; // epoch ms, for the countdown
   error?: string;
 };
 
@@ -38,14 +39,14 @@ export async function requestLoginCode(
   }
 
   try {
-    await issueLoginCode(admin.email);
+    const expiresAt = await issueLoginCode(admin.email);
+    return { ok: true, otpRequired: true, expiresAt };
   } catch {
     return {
       ok: false,
       error: "Couldn't send the verification code — please try again.",
     };
   }
-  return { ok: true, otpRequired: true };
 }
 
 // Step 2 (or the only step when OTP is off): mint the session. The credentials

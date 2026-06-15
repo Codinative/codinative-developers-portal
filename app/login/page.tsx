@@ -1,7 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { ShieldCheck, CircleAlert, ArrowLeft, MailCheck } from "lucide-react";
+import { useState, useTransition, useEffect, useRef } from "react";
+import {
+  ShieldCheck,
+  CircleAlert,
+  ArrowLeft,
+  MailCheck,
+  Clock,
+} from "lucide-react";
 import { requestLoginCode, completeLogin } from "@/actions/auth";
 
 export default function LoginPage() {
@@ -9,9 +15,24 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
+  const [expiresAt, setExpiresAt] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Guard so auto-submit fires once per code value.
+  const submittedFor = useRef<string>("");
+
+  // Tick the countdown once per second while on the code step.
+  useEffect(() => {
+    if (step !== "code") return;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [step]);
+
+  const remaining = expiresAt ? Math.max(0, Math.floor((expiresAt - now) / 1000)) : 0;
+  const expired = step === "code" && expiresAt !== null && remaining === 0;
+  const mmss = `${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`;
 
   function submitPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -24,32 +45,54 @@ export default function LoginPage() {
         return;
       }
       if (res.otpRequired) {
+        setCode("");
+        submittedFor.current = "";
+        setExpiresAt(res.expiresAt ?? Date.now() + 120_000);
+        setNow(Date.now());
         setStep("code");
-        setNotice(`We emailed an 8-digit code to ${email}. It expires in 2 minutes.`);
+        setNotice(`We emailed an 8-digit code to ${email}.`);
       } else {
-        // OTP off — sign in directly (server action redirects on success).
         const err = await completeLogin(email, password);
         if (err) setError(err);
       }
     });
   }
 
-  function submitCode(e: React.FormEvent) {
-    e.preventDefault();
+  function verify(value: string) {
+    if (isPending || value.length !== 8 || expired) return;
+    if (submittedFor.current === value) return; // don't double-fire
+    submittedFor.current = value;
     setError(null);
     startTransition(async () => {
-      const err = await completeLogin(email, password, code.trim());
-      if (err) setError(err);
+      const err = await completeLogin(email, password, value);
+      if (err) {
+        setError(err);
+        submittedFor.current = ""; // allow retry of same digits after a failure
+      }
     });
+  }
+
+  // Normalize any input/paste to digits, cap at 8, and auto-submit when full.
+  function handleCode(raw: string) {
+    const digits = raw.replace(/\D/g, "").slice(0, 8);
+    setCode(digits);
+    if (digits.length === 8) verify(digits);
   }
 
   function resend() {
     setError(null);
     setNotice(null);
+    setCode("");
+    submittedFor.current = "";
     startTransition(async () => {
       const res = await requestLoginCode(email, password);
-      if (!res.ok) setError(res.error ?? "Couldn't resend the code");
-      else setNotice(`New code sent to ${email}.`);
+      if (!res.ok) {
+        setError(res.error ?? "Couldn't resend the code");
+        return;
+      }
+      setExpiresAt(res.expiresAt ?? Date.now() + 120_000);
+      setNow(Date.now());
+      setNotice(`New code sent to ${email}.`);
     });
   }
 
@@ -117,7 +160,10 @@ export default function LoginPage() {
           </form>
         ) : (
           <form
-            onSubmit={submitCode}
+            onSubmit={(e) => {
+              e.preventDefault();
+              verify(code);
+            }}
             className="space-y-3 rounded-xl border border-gray-200 bg-white p-6"
           >
             {notice && (
@@ -136,14 +182,28 @@ export default function LoginPage() {
                 inputMode="numeric"
                 autoComplete="one-time-code"
                 pattern="\d*"
-                maxLength={8}
                 required
                 autoFocus
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => handleCode(e.target.value)}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  handleCode(e.clipboardData.getData("text"));
+                }}
                 placeholder="8-digit code"
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-center font-mono text-lg tracking-[0.4em] focus:border-gray-400 focus:outline-none"
               />
+            </div>
+
+            <div className="flex items-center gap-1.5 text-sm">
+              <Clock className="h-4 w-4 text-gray-400" />
+              {expired ? (
+                <span className="text-rose-600">Code expired — resend a new one.</span>
+              ) : (
+                <span className="text-gray-500">
+                  Code expires in <span className="font-medium tabular-nums">{mmss}</span>
+                </span>
+              )}
             </div>
 
             {error && (
@@ -155,7 +215,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={isPending || code.length < 6}
+              disabled={isPending || code.length !== 8 || expired}
               className="w-full rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
             >
               {isPending ? "Verifying…" : "Verify & sign in"}
@@ -167,6 +227,8 @@ export default function LoginPage() {
                 onClick={() => {
                   setStep("password");
                   setCode("");
+                  setExpiresAt(null);
+                  submittedFor.current = "";
                   setError(null);
                   setNotice(null);
                 }}
