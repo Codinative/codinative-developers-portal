@@ -1,5 +1,6 @@
 import { KeyRound } from "lucide-react";
-import { getSecretsByApp, GENERAL_SCOPE } from "@/actions/secrets";
+import { getSecretsByApp } from "@/actions/secrets";
+import { GENERAL_SCOPE } from "@/lib/secrets-config";
 import { SecretRow } from "@/components/SecretRow";
 import { AddSecretForm } from "@/components/AddSecretForm";
 

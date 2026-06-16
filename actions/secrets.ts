@@ -5,6 +5,9 @@ import { getDashboardDb } from "@/lib/firebase-admin";
 import { encrypt, decrypt } from "@/lib/crypto";
 import { FieldValue } from "firebase-admin/firestore";
 import { revalidatePath } from "next/cache";
+import { type Secret } from "@/lib/secrets-config";
+
+export type { Secret };
 
 // Auth guard — call this at the top of every action.
 async function requireAuth() {
@@ -12,15 +15,6 @@ async function requireAuth() {
   if (!session?.user) throw new Error("Unauthorized");
   return session;
 }
-
-export type Secret = {
-  id: string;
-  appId: string;
-  key: string;
-  value: string; // decrypted — only returned server-side to the authed session
-  addedAt: string;
-  addedBy: string;
-};
 
 type ActionResult = { success: boolean; error?: string };
 
@@ -55,10 +49,6 @@ export async function getSecretsByApp(appId: string): Promise<Secret[]> {
     })
     .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 }
-
-// The appId used by the standalone "general" vault (the /secrets page). Secrets
-// tied to a manual project use that project's id as the appId instead.
-export const GENERAL_SCOPE = "general";
 
 // Add a new secret (stored encrypted).
 export async function addSecret(
