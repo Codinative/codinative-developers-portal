@@ -2,12 +2,11 @@ import { initializeApp, getApps, cert, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 
 // ----------------------------------------------------------------------------
-// Multi-project Firebase Admin SDK.
+// Firebase Admin SDK for the dashboard's own project.
 //
-// Each BigCommerce app lives in its OWN Firebase project, and the dashboard
-// stores its encrypted secrets in a dedicated project of its own. So instead of
-// a single `adminDb`, we lazily initialize one NAMED Admin app per project and
-// cache it (firebase-admin keeps a registry keyed by app name).
+// The dashboard stores all of its data (secrets, projects, QA, users, login
+// config) in a single Firebase project. We lazily initialize a NAMED Admin app
+// and cache it (firebase-admin keeps a registry keyed by app name).
 // ----------------------------------------------------------------------------
 
 export type Creds = {
@@ -42,35 +41,11 @@ function dbFor(name: string, creds: Creds): Firestore {
   return getFirestore(app);
 }
 
-/** Firestore for the dashboard's own project (holds the `secrets` collection). */
+/** Firestore for the dashboard's own project (holds all dashboard data). */
 export function getDashboardDb(): Firestore {
   return dbFor("dashboard", {
     projectId: process.env.DASHBOARD_FIREBASE_PROJECT_ID,
     clientEmail: process.env.DASHBOARD_FIREBASE_CLIENT_EMAIL,
     privateKey: process.env.DASHBOARD_FIREBASE_PRIVATE_KEY,
   });
-}
-
-/**
- * Firestore for a monitored app's project. Credentials are resolved from env
- * vars by prefix, e.g. envPrefix="FB_SIGNUP" reads FB_SIGNUP_PROJECT_ID,
- * FB_SIGNUP_CLIENT_EMAIL and FB_SIGNUP_PRIVATE_KEY.
- */
-export function getAppDb(envPrefix: string): Firestore {
-  return dbFor(envPrefix, {
-    projectId: process.env[`${envPrefix}_PROJECT_ID`],
-    clientEmail: process.env[`${envPrefix}_CLIENT_EMAIL`],
-    privateKey: process.env[`${envPrefix}_PRIVATE_KEY`],
-  });
-}
-
-/**
- * Firestore for a project whose credentials come from the in-app config store
- * (Settings → Connect Firebase) rather than env vars. The named Admin app is
- * cached by `name` — use a stable, project-unique name. If a project's stored
- * credentials change, the new app instance only takes effect on a cold start
- * (firebase-admin keeps the first-initialized app for a given name).
- */
-export function getDbFromCreds(name: string, creds: Creds): Firestore {
-  return dbFor(`store:${name}`, creds);
 }

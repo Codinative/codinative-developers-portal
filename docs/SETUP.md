@@ -1,10 +1,10 @@
 # Setup
 
-How to get the dashboard running locally from a fresh clone. Budget ~20 minutes,
-mostly spent in the Firebase console creating service accounts.
+How to get the dashboard running locally from a fresh clone. Budget ~10 minutes,
+mostly spent in the Firebase console creating one service account.
 
 > New to how the pieces fit together? Skim **[ARCHITECTURE.md](ARCHITECTURE.md)**
-> first — in particular *why there are multiple Firebase projects*.
+> first.
 
 ---
 
@@ -20,32 +20,28 @@ npm install
 
 ---
 
-## 2. Firebase projects you need
+## 2. The Firebase project you need
 
-The dashboard talks to **several** Firebase projects (see ARCHITECTURE for the
-why):
+The dashboard stores **all** of its data (secrets, projects, QA, team logins,
+admin login) in a **single Firebase project of its own**:
 
 | Purpose | Project | Access the dashboard needs |
 |---|---|---|
-| Dashboard's own data (the `secrets` vault) | a dedicated **`codinative-dashboard`** project (create one) | read **and** write |
-| `custom-signup-forms` metrics | `bc-signup-customisation-app` | **read‑only** |
-| `weight-based-shipping-charge` metrics | `bc-weight-based-shipping` | **read‑only** |
+| Dashboard's own data | a dedicated **`codinative-dashboard`** project (create one) | read **and** write |
 
-Each one is reached with its own **service account**.
+It's reached with a **service account**.
 
-### Create a service account (per project)
+### Create the service account
 
 1. Firebase Console → the project → ⚙️ **Project settings** → **Service accounts**.
 2. **Generate new private key** → downloads a JSON file.
 3. From that JSON you need three fields → they map to env vars:
-   - `project_id` → `*_PROJECT_ID`
-   - `client_email` → `*_CLIENT_EMAIL`
-   - `private_key` → `*_PRIVATE_KEY`
+   - `project_id` → `DASHBOARD_FIREBASE_PROJECT_ID`
+   - `client_email` → `DASHBOARD_FIREBASE_CLIENT_EMAIL`
+   - `private_key` → `DASHBOARD_FIREBASE_PRIVATE_KEY`
 
-> **Least privilege:** for the *monitored* apps, the dashboard only reads. In
-> Google Cloud IAM, grant that service account **Cloud Datastore Viewer**
-> (read‑only) rather than the default editor role. The dashboard project's own
-> service account needs read **and** write (it manages the secrets vault).
+> The dashboard's service account needs read **and** write — it owns and manages
+> all of the dashboard's collections.
 
 ---
 
@@ -73,26 +69,19 @@ node -e "require('bcryptjs').hash('your-password', 12).then(console.log)"
 
 | Variable | Required | What it is / how to get it |
 |---|:--:|---|
-| `DASHBOARD_FIREBASE_PROJECT_ID` | ✅ | `project_id` from the **dashboard** project's service account |
+| `DASHBOARD_FIREBASE_PROJECT_ID` | ✅ | `project_id` from the dashboard project's service account |
 | `DASHBOARD_FIREBASE_CLIENT_EMAIL` | ✅ | `client_email` from the same JSON |
 | `DASHBOARD_FIREBASE_PRIVATE_KEY` | ✅ | `private_key` from the same JSON (see note below) |
-| `FB_SIGNUP_PROJECT_ID` | ✅ | `bc-signup-customisation-app` |
-| `FB_SIGNUP_CLIENT_EMAIL` | ✅ | service‑account email for that project |
-| `FB_SIGNUP_PRIVATE_KEY` | ✅ | service‑account private key for that project |
-| `FB_WEIGHT_PROJECT_ID` | ✅ | `bc-weight-based-shipping` |
-| `FB_WEIGHT_CLIENT_EMAIL` | ✅ | service‑account email for that project |
-| `FB_WEIGHT_PRIVATE_KEY` | ✅ | service‑account private key for that project |
 | `ENCRYPTION_KEY` | ✅ | the 64‑char hex string from step 3 (min 32 chars) |
 | `AUTH_SECRET` | ✅ | the `openssl rand -base64 32` value from step 3 |
 | `NEXTAUTH_URL` | ✅ | `http://localhost:3000` locally; the deployed URL in prod |
 | `AUTH_TRUST_HOST` | ✅ | `true` |
-| `ADMIN_EMAIL` | ✅ | the single admin's login email |
-| `ADMIN_PASSWORD_HASH` | ✅ | the bcrypt hash from step 3 |
+| `ADMIN_EMAIL` | ✅ | the owner admin's login email (first‑run default) |
+| `ADMIN_PASSWORD_HASH` | ✅ | the bcrypt hash from step 3 (first‑run default) |
 
-> The env‑var **prefix** for each app (`FB_SIGNUP`, `FB_WEIGHT`) is defined by
-> `envPrefix` in [`lib/apps-config.ts`](../lib/apps-config.ts). Adding an app =
-> a new prefix + a new set of these three vars. See
-> [ARCHITECTURE.md → Adding a new app](ARCHITECTURE.md#adding-a-new-app).
+> `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` are only the **first‑run default**. Once
+> you change the login from **Settings**, the stored value takes over. Team
+> logins are created entirely from Settings — no env vars.
 
 #### Private‑key formatting
 
@@ -108,12 +97,10 @@ DASHBOARD_FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END P
 
 ## 5. Apply the Firestore rules (dashboard project)
 
-In the **dashboard** project: Firebase Console → Firestore → **Rules** → paste
-the contents of [`firestore.rules`](../firestore.rules) → **Publish**. This
-blocks all client access to `secrets`; only the server (Admin SDK) can touch it.
-
-You do **not** need to change rules on the monitored projects — the dashboard
-reads them via service accounts, which bypass security rules.
+In the dashboard project: Firebase Console → Firestore → **Rules** → paste the
+contents of [`firestore.rules`](../firestore.rules) → **Publish**. This blocks
+all client access to every dashboard collection; only the server (Admin SDK) can
+touch them.
 
 ---
 
@@ -127,9 +114,7 @@ Expected first run:
 
 1. Visiting `/` redirects you to `/login`.
 2. Log in with `ADMIN_EMAIL` + the password you hashed.
-3. The overview shows install/user counts per app. An app whose service‑account
-   env vars are missing or wrong shows an **"Error"** badge instead of crashing
-   the page — fix that app's `*_PRIVATE_KEY`/`*_CLIENT_EMAIL` and refresh.
+3. The Overview shows links into Projects, QA and Secrets.
 
 ---
 
@@ -137,8 +122,8 @@ Expected first run:
 
 | Symptom | Likely cause |
 |---|---|
-| App card shows **"Metrics unavailable / Error"** | Wrong or missing `FB_*` service‑account vars, or the SA lacks Firestore read access |
 | `ENCRYPTION_KEY must be at least 32 characters` | Key too short — regenerate with the step‑3 command |
 | Login always fails | `ADMIN_EMAIL` mismatch, or `ADMIN_PASSWORD_HASH` isn't the bcrypt hash of the password you're typing |
 | `Failed to parse private key` | Private key not wrapped in quotes / `\n` escapes mangled — re‑paste per step 4 |
 | Redirect loop or session won't persist | `AUTH_SECRET` unset, or `AUTH_TRUST_HOST` not `true` |
+| A page errors reading data | Wrong `DASHBOARD_FIREBASE_*` creds, or Firestore not enabled on the dashboard project |

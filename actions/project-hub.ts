@@ -8,9 +8,8 @@ import { revalidatePath } from "next/cache";
 
 // ----------------------------------------------------------------------------
 // Manual "Projects" hub. A project is a place to collect everything about an
-// app/work item: related links and secrets. This is independent of the
-// Firebase-connected projects in projects-store.ts (collection firebaseProjects)
-// — those auto-pull metrics; these are created and curated by hand.
+// app/work item: related links and secrets. Projects are created and curated by
+// hand.
 //
 // Secrets are NOT stored here: the project detail page reuses the existing
 // secrets vault (actions/secrets.ts), keyed by the project's id as the appId.

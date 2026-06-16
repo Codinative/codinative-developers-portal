@@ -56,6 +56,10 @@ export async function getSecretsByApp(appId: string): Promise<Secret[]> {
     .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 }
 
+// The appId used by the standalone "general" vault (the /secrets page). Secrets
+// tied to a manual project use that project's id as the appId instead.
+export const GENERAL_SCOPE = "general";
+
 // Add a new secret (stored encrypted).
 export async function addSecret(
   appId: string,

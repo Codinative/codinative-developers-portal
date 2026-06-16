@@ -2,8 +2,7 @@ rules_version = '2';
 
 // Rules for the DASHBOARD's own Firebase project (the one holding `secrets`).
 // The Admin SDK used by Server Actions bypasses these rules; clients/browsers
-// are blocked entirely. The monitored apps keep their own existing rules — the
-// dashboard reads them via read-only service accounts, which also bypass rules.
+// are blocked entirely.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -12,13 +11,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Connected Firebase projects (service-account creds, key encrypted at rest)
-    // — server-side only.
-    match /firebaseProjects/{projectId} {
-      allow read, write: if false;
-    }
-
-    // App config (admin login credentials, Google token) — server-side only.
+    // App config (admin login credentials) — server-side only.
     match /appConfig/{docId} {
       allow read, write: if false;
     }

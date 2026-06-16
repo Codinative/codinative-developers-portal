@@ -89,11 +89,8 @@ into the credentials provider in [`lib/auth.ts`](../lib/auth.ts).
 ## Firestore rules
 
 - The **dashboard** project applies [`firestore.rules`](../firestore.rules):
-  `secrets` (and everything else) is `allow read, write: if false`. The Admin
-  SDK bypasses rules; no browser/client can read the vault.
-- **Monitored** projects keep their own existing rules. The dashboard reads them
-  via service accounts, which bypass rules — so grant those service accounts the
-  minimum (**Cloud Datastore Viewer**, read‑only).
+  `secrets` (and every other collection) is `allow read, write: if false`. The
+  Admin SDK bypasses rules; no browser/client can read the vault.
 
 ---
 
@@ -110,7 +107,7 @@ into the credentials provider in [`lib/auth.ts`](../lib/auth.ts).
 - [ ] Every Server Action calls `requireAuth()` as its first line
 - [ ] Delete actions are guarded by a `confirm()` dialog
 - [ ] All env vars are set in Vercel (not just `.env.local`)
-- [ ] Monitored‑app service accounts are **read‑only**; the dashboard SA has only what it needs
+- [ ] The dashboard service account has only the access it needs
 
 ---
 

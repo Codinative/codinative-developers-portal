@@ -7,75 +7,40 @@ live. Read this before making structural changes.
 
 ## What the app does
 
-1. **Overview** (`/`) — one card per BigCommerce app with its live install count
-   and status.
-2. **App detail** (`/apps/[appId]`) — per‑app metric breakdown + a sample of
-   stores.
-3. **Secrets vault** (`/secrets`) — AES‑encrypted key/value store for API keys
-   and tokens, grouped per app.
-4. Everything except `/login` is behind a single admin login.
+1. **Overview** (`/`) — quick links into the workspace sections.
+2. **Projects** (`/projects`, `/projects/[projectId]`) — a manual hub: create a
+   project, then collect its related links and per‑project secrets in one place.
+3. **QA** (`/qa`, `/qa/[checklistId]`) — checklists / app‑review runs, seeded
+   from reusable templates.
+4. **Secrets vault** (`/secrets`) — a general AES‑encrypted key/value store for
+   API keys and tokens not tied to a specific project.
+5. **Settings** (`/settings`) — change the owner login and manage team logins.
+6. Everything except `/login` is behind authentication.
 
 ---
 
-## The one decision that shapes everything: multiple Firebase projects
+## One Firebase project
 
-Each BigCommerce app is deployed as **its own Firebase project**, e.g.:
+The dashboard stores **all** of its data in a single Firebase project of its
+own — the secrets vault, projects, QA checklists, team logins and the admin
+login. [`lib/firebase-admin.ts`](../lib/firebase-admin.ts) lazily initializes a
+single named Admin app via `getDashboardDb()`, with credentials from
+`DASHBOARD_FIREBASE_*` env vars.
 
-| App | Firebase project |
+Collections in that project:
+
+| Collection | Holds |
 |---|---|
-| `custom-signup-forms` | `bc-signup-customisation-app` |
-| `weight-based-shipping-charge` | `bc-weight-based-shipping` |
+| `secrets` | Encrypted key/value secrets (keyed by `appId` = project id, or `general`). |
+| `projects` | Manual Projects hub entries + their links. |
+| `qaChecklists` | QA / app‑review checklist runs. |
+| `dashboardUsers` | Team member logins (bcrypt password hashes). |
+| `appConfig` | Owner admin login (`appConfig/admin`). |
+| `loginOtps` | Short‑lived hashed login OTP codes. |
 
-There is no single shared database, so the dashboard cannot use one Firestore
-client. Instead:
-
-- [`lib/firebase-admin.ts`](../lib/firebase-admin.ts) lazily initializes **one
-  named Firebase Admin app per project** and caches it. Credentials are resolved
-  from env vars by **prefix**:
-  - `getDashboardDb()` → the dashboard's own project (`DASHBOARD_FIREBASE_*`),
-    used for the secrets vault (read **and** write).
-  - `getAppDb("FB_SIGNUP")` → a monitored app's project (`FB_SIGNUP_*`),
-    used read‑only for metrics.
-
-This is also why the secrets vault lives in a **separate dashboard project** and
-never inside an app's project — it keeps the dashboard's data isolated from the
-products it monitors.
-
----
-
-## The app registry
-
-[`lib/apps-config.ts`](../lib/apps-config.ts) is the single source of truth for
-which apps exist and what to count. Each entry:
-
-```ts
-{
-  id: "custom-signup-forms",   // used in routes and as the secrets appId
-  name: "Custom Signup Forms",
-  envPrefix: "FB_SIGNUP",       // → FB_SIGNUP_PROJECT_ID / _CLIENT_EMAIL / _PRIVATE_KEY
-  installs: { label: "Installs", kind: "collection", path: "stores" },
-  metrics: [ /* more MetricSpecs */ ],
-}
-```
-
-### Metric specs: `collection` vs `collectionGroup`
-
-The monitored apps share a data shape:
-
-- `stores/{storeHash}` — one doc per install → the **install count**.
-- `users/{userId}` — admin users.
-- App‑specific data is either a **top‑level collection** (e.g. `settings` in
-  weight‑based) or a **sub‑collection** under each store (e.g.
-  `stores/{hash}/signupRequests`, `stores/{hash}/formVersions`).
-
-A `MetricSpec` therefore declares its `kind`:
-
-- `kind: "collection"` → counted with `db.collection(path).count()`.
-- `kind: "collectionGroup"` → counted with `db.collectionGroup(path).count()`,
-  which aggregates that sub‑collection across **all** stores.
-
-[`actions/metrics.ts`](../actions/metrics.ts) picks the right query per spec, so
-adding a metric never requires touching query code — just the registry.
+All collections are locked to `if false` in
+[`firestore.rules`](../firestore.rules) — the Admin SDK in Server Actions
+bypasses the rules; browsers are blocked entirely.
 
 ---
 
@@ -92,10 +57,12 @@ Auth is split into two files on purpose:
   route handler (`app/api/auth/[...nextauth]`) and Server Actions (Node runtime).
 
 If bcrypt/firebase‑admin were imported into the middleware bundle, the Edge build
-would break — the split prevents that. The credentials check validates against a
-single env‑stored admin (`ADMIN_EMAIL` + `ADMIN_PASSWORD_HASH`); sessions are JWT
-with an 8‑hour max age. `types/next-auth.d.ts` augments the session type so
-`session.user.id` is typed.
+would break — the split prevents that. The credentials check runs
+`resolveLogin(email, password)` ([`lib/users-store.ts`](../lib/users-store.ts)),
+which validates the **owner admin first** (stored `appConfig/admin`, falling back
+to `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH`), then **team members**
+(`dashboardUsers`). Sessions are JWT. `types/next-auth.d.ts` augments the session
+type so `session.user.id` is typed.
 
 `middleware.ts` matches every route except `api`, `_next/*`, and `favicon.ico`;
 the `authorized` callback redirects unauthenticated users to `/login` and
@@ -114,11 +81,14 @@ Dashboard Firebase project
    /secrets   →  { appId, key, value: <AES ciphertext>, addedAt, addedBy }
 ```
 
+- `appId` scopes a secret: the **general vault** (`/secrets`) uses
+  `GENERAL_SCOPE` (`"general"`); a project's detail page reuses the same vault
+  keyed by the **project's id**.
 - Values are encrypted with [`lib/crypto.ts`](../lib/crypto.ts) (`encrypt`)
   before they're written, using `ENCRYPTION_KEY`.
 - They're decrypted **only** server‑side, inside the Server Action, and the
   plaintext is returned to the requesting authed session. It is never logged and
-  never stored or sent in encrypted form to the browser.
+  never sent in encrypted form to the browser.
 - The UI masks values by default (`maskValue`) and reveals on demand client‑side.
 
 See [SECURITY.md](SECURITY.md) for the full model.
@@ -132,32 +102,42 @@ app/
   layout.tsx                 Root layout (fonts, html/body)
   login/page.tsx             Public login (client form → authenticate action)
   (dashboard)/
-    layout.tsx               Authed shell (Nav + container)
-    page.tsx                 Overview — getAllAppMetrics()
-    apps/[appId]/page.tsx    Per‑app detail — getAppMetric() + getRecentStores()
-    secrets/page.tsx         Secrets vault — getSecretsByApp() per app
+    layout.tsx               Authed shell (Sidebar + container)
+    page.tsx                 Overview — section links
+    projects/page.tsx        Projects hub list
+    projects/[projectId]/    Project detail — links + secrets
+    qa/page.tsx              QA checklist list
+    qa/[checklistId]/        Checklist detail
+    secrets/page.tsx         General secrets vault — getSecretsByApp("general")
+    settings/page.tsx        Owner login + team logins
   api/auth/[...nextauth]/    NextAuth handlers (GET, POST)
 
 actions/
   secrets.ts                 requireAuth + CRUD against the dashboard project
-  metrics.ts                 per‑project counts (collection/collectionGroup)
-  auth.ts                    authenticate() and logout() server actions
+  project-hub.ts             Projects + links CRUD
+  qa.ts                      Checklists CRUD
+  users.ts                   Team-member CRUD
+  account.ts                 Change owner login
+  auth.ts                    authenticate() / logout() / login-OTP actions
 
 components/
-  Nav.tsx                    Top nav + sign‑out (client)
-  AppCard.tsx                One app on the overview
-  StatGrid.tsx               Metric cards
-  ActivityFeed.tsx           Store sample list
+  Sidebar.tsx                Sidebar nav + sign‑out (client)
   SecretRow.tsx              Reveal / copy / delete a secret (client)
   AddSecretForm.tsx          Add a secret (client)
+  projects/*                 Projects hub UI
+  qa/*                       QA checklist UI
+  AccountSettingsForm.tsx    Change owner login (client)
+  AddTeamMemberForm.tsx      Add a team login (client)
+  TeamMemberRow.tsx          Reset / delete a team login (client)
 
 lib/
-  firebase-admin.ts          Multi‑project Admin SDK init
-  apps-config.ts             The app registry + MetricSpec types
+  firebase-admin.ts          Admin SDK init (getDashboardDb)
   crypto.ts                  AES encrypt/decrypt + maskValue
   auth.config.ts             Edge‑safe NextAuth config
   auth.ts                    Full NextAuth instance
-  accent.ts                  Static Tailwind accent‑class map per app color
+  admin-config.ts            Owner admin store + env fallback
+  users-store.ts             Team-member store + resolveLogin
+  qa-status.ts / qa-templates.ts   QA status meta + checklist templates
 
 types/next-auth.d.ts         Session/JWT type augmentation
 middleware.ts                Route protection
@@ -166,31 +146,13 @@ firestore.rules              Dashboard‑project security rules
 
 ---
 
-## Adding a new app
-
-1. **Service account** — create a read‑only service account in the new app's
-   Firebase project (see [SETUP.md](SETUP.md#create-a-service-account-per-project)).
-2. **Env vars** — add `FB_<NAME>_PROJECT_ID`, `FB_<NAME>_CLIENT_EMAIL`,
-   `FB_<NAME>_PRIVATE_KEY` to `.env.local` (and Vercel). Also add the same keys
-   (without values) to `.env.example` so the next developer sees them.
-3. **Registry** — add an entry to `APPS` in
-   [`lib/apps-config.ts`](../lib/apps-config.ts): set `id`, `name`,
-   `description`, `envPrefix: "FB_<NAME>"`, a `color`, the `installs` spec
-   (usually `stores`), and any extra `metrics` (use `collectionGroup` for
-   sub‑collections).
-
-No other code changes are needed — pages, metrics, and the secrets vault all
-iterate over `APPS`.
-
----
-
 ## Conventions
 
 - **npm**, TypeScript **strict** (no `any` — use `unknown`), path alias `@/*`.
 - **Server Components by default**; `"use client"` only for interactivity
-  (`SecretRow`, `AddSecretForm`, `Nav`, login form).
+  (`SecretRow`, `AddSecretForm`, `Sidebar`, forms, login).
 - Server Actions return `{ success, error? }` and call `requireAuth()` first.
 - Tailwind **v4** (CSS‑first; `@import "tailwindcss"` in `app/globals.css`).
-  Dynamic color classes won't survive purge — accent classes are kept as full
-  static strings in `lib/accent.ts`.
+  Dynamic color classes won't survive purge — keep status/accent classes as full
+  static strings (e.g. `lib/qa-status.ts`).
 - `npm run lint` + `npm run build` must pass before pushing.

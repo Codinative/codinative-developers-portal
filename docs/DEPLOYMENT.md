@@ -71,7 +71,5 @@ is no automated script yet — the procedure is:
 
 - **Rollback:** Vercel keeps previous deployments; promote an earlier one if a
   release misbehaves. Env‑var changes apply on the next deploy.
-- **Adding an app** before deploy: add its `FB_*` vars in Vercel too, not just
-  locally — see [ARCHITECTURE.md → Adding a new app](ARCHITECTURE.md#adding-a-new-app).
 - **Edge‑runtime build warnings** about `jose` (`CompressionStream`) are benign;
   they come from NextAuth's dependency and don't affect the middleware.
