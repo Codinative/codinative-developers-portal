@@ -19,11 +19,17 @@ const USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo";
 const FIREBASE_PROJECTS_URL =
   "https://firebase.googleapis.com/v1beta1/projects?pageSize=200";
 
-// Read-only access to Firebase project metadata and Firestore data.
+// Read access to Firebase project metadata + Firestore data.
+//   - cloud-platform.read-only: list the Firebase projects the account owns.
+//   - datastore: read Firestore documents/aggregations. The Firestore data API
+//     does NOT accept cloud-platform.read-only, so without this the project list
+//     loads but every per-project Firestore read is denied. (There is no
+//     datastore.read-only scope; the dashboard only ever reads.)
 const SCOPES = [
   "openid",
   "email",
   "https://www.googleapis.com/auth/cloud-platform.read-only",
+  "https://www.googleapis.com/auth/datastore",
 ];
 
 const DOC = { collection: "appConfig", id: "google" } as const;
