@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import { Nav } from "@/components/Nav";
+import { Sidebar } from "@/components/Sidebar";
 
 export default async function DashboardLayout({
   children,
@@ -9,9 +9,9 @@ export default async function DashboardLayout({
   const session = await auth();
 
   return (
-    <div className="min-h-screen">
-      <Nav email={session?.user?.email} />
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+    <div className="min-h-screen md:pl-64">
+      <Sidebar email={session?.user?.email} />
+      <main className="mx-auto max-w-6xl px-6 pb-10 pt-6">{children}</main>
     </div>
   );
 }

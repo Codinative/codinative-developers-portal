@@ -91,6 +91,8 @@ export async function addSecret(
     });
 
     revalidatePath("/secrets");
+    // Secrets are also shown on each project's detail page (keyed by project id).
+    revalidatePath("/projects/[projectId]", "page");
     return { success: true };
   } catch (err) {
     // Never log the decrypted value; the error object carries no plaintext here.
@@ -114,6 +116,8 @@ export async function updateSecret(
     });
 
     revalidatePath("/secrets");
+    // Secrets are also shown on each project's detail page (keyed by project id).
+    revalidatePath("/projects/[projectId]", "page");
     return { success: true };
   } catch (err) {
     console.error("updateSecret error:", err);
@@ -127,6 +131,8 @@ export async function deleteSecret(secretId: string): Promise<ActionResult> {
     await requireAuth();
     await getDashboardDb().collection("secrets").doc(secretId).delete();
     revalidatePath("/secrets");
+    // Secrets are also shown on each project's detail page (keyed by project id).
+    revalidatePath("/projects/[projectId]", "page");
     return { success: true };
   } catch (err) {
     console.error("deleteSecret error:", err);

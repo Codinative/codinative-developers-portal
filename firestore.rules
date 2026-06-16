@@ -33,6 +33,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Project hub (manual projects + their links) — server-side only.
+    match /projects/{projectId} {
+      allow read, write: if false;
+    }
+
     // Login OTP codes (hashed, short-lived) — server-side only.
     match /loginOtps/{docId} {
       allow read, write: if false;
