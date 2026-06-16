@@ -1,8 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import { authConfig } from "./auth.config";
-import { getEffectiveAdmin } from "./admin-config";
+import { resolveLogin } from "./users-store";
 import { sendLoginAlert } from "./notify";
 import { otpEnabled, verifyLoginCode } from "./login-otp";
 
@@ -25,19 +24,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const code = credentials?.code as string | undefined;
         if (!email || !password) return null;
 
-        // Validate against the single admin — stored in Firestore if it has
-        // been set from Settings, otherwise the env-var bootstrap default.
-        const admin = await getEffectiveAdmin();
-        if (!admin) return null;
-        if (email.toLowerCase() !== admin.email.toLowerCase()) return null;
-
-        const isValid = await bcrypt.compare(password, admin.passwordHash);
-        if (!isValid) return null;
+        // Validate against the owner admin (Firestore appConfig/admin or env
+        // fallback) OR any team member login stored in Firestore.
+        const account = await resolveLogin(email, password);
+        if (!account) return null;
 
         // Second factor: when OTP is enabled, a valid, unexpired, single-use
         // code is required in addition to the password.
         if (otpEnabled()) {
-          const okCode = code ? await verifyLoginCode(admin.email, code) : false;
+          const okCode = code ? await verifyLoginCode(account.email, code) : false;
           if (!okCode) return null;
         }
 
@@ -51,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             "unknown";
           const userAgent = headers?.get("user-agent") || "unknown";
           await sendLoginAlert({
-            email: admin.email,
+            email: account.email,
             ip,
             userAgent,
             when: new Date().toISOString(),
@@ -60,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           /* already handled inside sendLoginAlert */
         }
 
-        return { id: "admin", email: admin.email, name: "Admin" };
+        return { id: account.id, email: account.email, name: account.name };
       },
     }),
   ],

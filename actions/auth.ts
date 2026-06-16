@@ -1,9 +1,8 @@
 "use server";
 
 import { AuthError } from "next-auth";
-import bcrypt from "bcryptjs";
 import { signIn, signOut } from "@/lib/auth";
-import { getEffectiveAdmin } from "@/lib/admin-config";
+import { resolveLogin } from "@/lib/users-store";
 import { otpEnabled, issueLoginCode } from "@/lib/login-otp";
 
 export type LoginStep1 = {
@@ -23,14 +22,9 @@ export async function requestLoginCode(
     return { ok: false, error: "Email and password are required." };
   }
 
-  const admin = await getEffectiveAdmin();
-  if (!admin) {
-    return { ok: false, error: "No admin is configured." };
-  }
-  if (
-    email.trim().toLowerCase() !== admin.email.toLowerCase() ||
-    !(await bcrypt.compare(password, admin.passwordHash))
-  ) {
+  // Resolve against the owner admin or any team-member login.
+  const account = await resolveLogin(email, password);
+  if (!account) {
     return { ok: false, error: "Invalid email or password" };
   }
 
@@ -39,7 +33,7 @@ export async function requestLoginCode(
   }
 
   try {
-    const expiresAt = await issueLoginCode(admin.email);
+    const expiresAt = await issueLoginCode(account.email);
     return { ok: true, otpRequired: true, expiresAt };
   } catch {
     return {

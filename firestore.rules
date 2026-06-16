@@ -23,6 +23,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Team member logins (bcrypt-hashed passwords) — server-side only.
+    match /dashboardUsers/{userId} {
+      allow read, write: if false;
+    }
+
     // QA checklists (app-review / QA runs) — server-side (Admin SDK) only.
     match /qaChecklists/{checklistId} {
       allow read, write: if false;
