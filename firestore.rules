@@ -23,6 +23,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // QA checklists (app-review / QA runs) — server-side (Admin SDK) only.
+    match /qaChecklists/{checklistId} {
+      allow read, write: if false;
+    }
+
     // Login OTP codes (hashed, short-lived) — server-side only.
     match /loginOtps/{docId} {
       allow read, write: if false;

@@ -8,12 +8,14 @@ import {
   LogOut,
   ShieldCheck,
   Settings,
+  ClipboardCheck,
 } from "lucide-react";
 import { logout } from "@/actions/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/qa", label: "QA", icon: ClipboardCheck },
   { href: "/secrets", label: "Secrets", icon: KeyRound },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
