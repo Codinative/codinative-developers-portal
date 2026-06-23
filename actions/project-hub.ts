@@ -23,7 +23,13 @@ async function requireAuth() {
   return session;
 }
 
-export type ProjectLink = { id: string; label: string; url: string };
+export type ProjectLink = {
+  id: string;
+  label: string;
+  url: string;
+  /** One of the ids from components/projects/link-types (github, bigcommerce…). */
+  type: string;
+};
 
 export type HubProject = {
   id: string;
@@ -71,6 +77,8 @@ function coerceLink(value: unknown): ProjectLink {
     id: typeof v.id === "string" && v.id ? v.id : randomUUID(),
     label: typeof v.label === "string" ? v.label : "",
     url: typeof v.url === "string" ? v.url : "",
+    // Links saved before types existed default to the generic "custom" kind.
+    type: typeof v.type === "string" && v.type ? v.type : "custom",
   };
 }
 
@@ -215,16 +223,18 @@ export async function addLink(
   projectId: string,
   label: string,
   url: string,
+  type: string = "custom",
 ): Promise<ActionResult> {
   try {
     await requireAuth();
     const l = label.trim();
     const u = normalizeUrl(url);
+    const t = type.trim() || "custom";
     if (!l) return { success: false, error: "A label is required." };
     if (!u) return { success: false, error: "A URL is required." };
 
     return await mutateLinks(projectId, (links) => {
-      links.push({ id: randomUUID(), label: l, url: u });
+      links.push({ id: randomUUID(), label: l, url: u, type: t });
       return links;
     });
   } catch (err) {
