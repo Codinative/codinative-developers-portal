@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { ExternalLink, Copy, Check, Trash2 } from "lucide-react";
 import { deleteLink, type ProjectLink } from "@/actions/project-hub";
+import { LinkTypeBadge, getLinkType } from "./link-types";
 
 export function LinkRow({
   projectId,
@@ -13,6 +14,7 @@ export function LinkRow({
 }) {
   const [copied, setCopied] = useState(false);
   const [isDeleting, startDelete] = useTransition();
+  const type = getLinkType(link.type);
 
   async function handleCopy() {
     try {
@@ -37,16 +39,21 @@ export function LinkRow({
         isDeleting ? "opacity-40" : ""
       }`}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-        <ExternalLink className="h-4 w-4" />
-      </span>
+      <LinkTypeBadge type={type} size="md" />
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{link.label}</div>
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+            {link.label}
+          </span>
+          <span className="hidden shrink-0 rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 sm:inline dark:bg-gray-800 dark:text-gray-400">
+            {type.label}
+          </span>
+        </div>
         <a
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="truncate text-xs text-indigo-600 hover:underline dark:text-indigo-400"
+          className="block truncate text-xs text-indigo-600 hover:underline dark:text-indigo-400"
         >
           {link.url}
         </a>
