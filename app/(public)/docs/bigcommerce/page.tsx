@@ -1,17 +1,37 @@
 import type { Metadata } from "next";
-import { DocLayout, Section, Code, C, Callout, Steps } from "@/components/public/doc";
+import {
+  DocLayout,
+  Section,
+  Code,
+  C,
+  Callout,
+  Steps,
+  type TocItem,
+} from "@/components/public/doc";
 
 export const metadata: Metadata = {
   title: "BigCommerce guidelines - Codinative Developers",
 };
+
+const TOC: TocItem[] = [
+  { id: "auth", title: "How auth works" },
+  { id: "create-account", title: "Create an API account" },
+  { id: "use-token", title: "Use the token" },
+  { id: "v2-v3", title: "v2 vs v3" },
+  { id: "app-oauth", title: "App OAuth tokens" },
+  { id: "stencil", title: "Stencil CLI token" },
+  { id: "storage", title: "Storing tokens" },
+  { id: "references", title: "References" },
+];
 
 export default function BigCommerceDocs() {
   return (
     <DocLayout
       title="BigCommerce guidelines"
       intro="How to create API access for a BigCommerce store, the difference between v2 and v3, and the token you need for Stencil theme development."
+      toc={TOC}
     >
-      <Section title="How authentication works">
+      <Section id="auth" title="How authentication works">
         <p>
           Almost everything you build against a single store - the REST API (v2 and v3) and the
           GraphQL API - uses one thing: a <strong>store-level API account access token</strong>, sent
@@ -25,7 +45,7 @@ export default function BigCommerceDocs() {
         </p>
       </Section>
 
-      <Section title="1. Create a store-level API account">
+      <Section id="create-account" title="1. Create a store-level API account">
         <Steps>
           <li>
             In the store control panel go to <strong>Settings → API → Store-level API accounts</strong>.
@@ -50,7 +70,7 @@ export default function BigCommerceDocs() {
         </Callout>
       </Section>
 
-      <Section title="2. Use the token">
+      <Section id="use-token" title="2. Use the token">
         <p>Send the access token as the X-Auth-Token header on every request:</p>
         <Code>{`curl https://api.bigcommerce.com/stores/{store_hash}/v3/catalog/products \\
   -H "X-Auth-Token: {access_token}" \\
@@ -58,7 +78,7 @@ export default function BigCommerceDocs() {
   -H "Content-Type: application/json"`}</Code>
       </Section>
 
-      <Section title="3. v2 vs v3 - versions, not separate tokens">
+      <Section id="v2-v3" title="3. v2 vs v3 - versions, not separate tokens">
         <p>
           A common point of confusion: <strong>v2 and v3 are API versions, not two different kinds of
           token</strong>. The same store API account token works for both - the scopes you granted
@@ -81,7 +101,7 @@ export default function BigCommerceDocs() {
         </p>
       </Section>
 
-      <Section title="App OAuth tokens (for published apps)">
+      <Section id="app-oauth" title="App OAuth tokens (for published apps)">
         <p>
           Store API accounts are for back-office scripts and single-store integrations. Our{" "}
           <strong>embedded apps</strong> (signup forms, shipping rules, sticky add-to-cart) instead
@@ -92,7 +112,7 @@ export default function BigCommerceDocs() {
         </p>
       </Section>
 
-      <Section title="Stencil CLI token (theme development)">
+      <Section id="stencil" title="Stencil CLI token (theme development)">
         <p>
           Stencil is BigCommerce&rsquo;s toolkit for developing Stencil storefront themes locally. It
           authenticates with a store API account access token - the &ldquo;Stencil token&rdquo;.
@@ -122,7 +142,7 @@ stencil push       # bundle + upload the theme`}</Code>
         </Steps>
       </Section>
 
-      <Section title="Where to keep tokens">
+      <Section id="storage" title="Where to keep tokens">
         <p>
           Put store tokens and secrets in the dashboard <strong>secrets vault</strong> (team sign-in
           required) rather than in <C>.env</C> files committed to a repo. Treat every access token
@@ -130,7 +150,7 @@ stencil push       # bundle + upload the theme`}</Code>
         </p>
       </Section>
 
-      <Section title="Official references">
+      <Section id="references" title="Official references">
         <ul className="ml-5 list-disc space-y-1.5">
           <li>
             <DocLink href="https://developer.bigcommerce.com/docs/start/authentication/api-accounts">
