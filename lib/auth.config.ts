@@ -20,15 +20,27 @@ export const authConfig = {
     // Runs in middleware for every matched route — gate access here.
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      const isLoginPage = nextUrl.pathname === "/login";
+      const { pathname } = nextUrl;
 
-      if (isLoginPage) {
-        if (isLoggedIn) return Response.redirect(new URL("/", nextUrl));
-        return true; // allow unauthenticated users to see /login
+      // Public Developer Portal routes — viewable without a session.
+      const isPublicRoute =
+        pathname === "/" ||
+        pathname === "/login" ||
+        pathname === "/docs" ||
+        pathname.startsWith("/docs/") ||
+        pathname === "/apps" ||
+        pathname.startsWith("/apps/");
+
+      // Send already-authenticated users away from the login screen.
+      if (pathname === "/login") {
+        if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
+        return true;
       }
 
-      // Any other matched route requires a session; returning false makes
-      // NextAuth redirect to the configured signIn page.
+      if (isPublicRoute) return true;
+
+      // Everything else (the admin workspace) requires a session; returning
+      // false makes NextAuth redirect to the configured signIn page (/login).
       return isLoggedIn;
     },
     async jwt({ token, user }) {
