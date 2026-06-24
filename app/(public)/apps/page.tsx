@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Globe } from "lucide-react";
 import { PROJECT_GROUPS, type Project } from "@/lib/portal-projects";
 
 export const metadata: Metadata = {
@@ -39,7 +39,7 @@ export default function AppsPage() {
 }
 
 function ProjectCard({ project }: { project: Project }) {
-  const { name, stack, description, repo, legacy } = project;
+  const { name, stack, description, repo, website, legacy } = project;
   return (
     <div className="flex flex-col rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex items-start justify-between gap-2">
@@ -56,16 +56,28 @@ function ProjectCard({ project }: { project: Project }) {
         {stack}
       </span>
       <p className="mt-3 flex-1 text-sm text-gray-600 dark:text-gray-400">{description}</p>
-      {repo && (
-        <a
-          href={repo}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-300"
-        >
-          View repo <ArrowUpRight className="h-3.5 w-3.5" />
-        </a>
-      )}
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1">
+        {website && (
+          <a
+            href={website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-300"
+          >
+            <Globe className="h-3.5 w-3.5" /> Visit site
+          </a>
+        )}
+        {repo && (
+          <a
+            href={repo}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 transition hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            View repo <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
+        )}
+      </div>
     </div>
   );
 }

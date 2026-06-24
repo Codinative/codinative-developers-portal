@@ -8,6 +8,7 @@ export type Project = {
   stack: string;
   description: string;
   repo?: string; // GitHub URL (Codinative org)
+  website?: string; // live deployed site (Codinative subdomain)
   legacy?: boolean;
 };
 
@@ -66,6 +67,7 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
         description:
           "A drag-and-drop signup form builder with approval workflows, per-group email templates, and Stripe-billed SaaS gating.",
         repo: `${GH}/custom-signup-forms`,
+        website: "https://custom-signup-forms.codinative.com/",
       },
       {
         name: "Custom-Shipping-Rules-App",
@@ -73,6 +75,7 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
         description:
           "Registers a custom weight-based UPS shipping provider for UAE domestic delivery, returning live rates at checkout.",
         repo: `${GH}/Custom-Shipping-Rules-App`,
+        website: "https://custom-shipping-rules.codinative.com/",
       },
       {
         name: "Sticky-Add-to-Cart-App",
@@ -80,6 +83,7 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
         description:
           "Adds a persistent, customizable Add to Cart bar to product pages, with smart triggers and variant/quantity handling.",
         repo: `${GH}/Sticky-Add-to-Cart-App`,
+        website: "https://sticky-add-to-cart.codinative.com/",
       },
     ],
   },
@@ -92,18 +96,21 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
         stack: "Next.js",
         description: "Marketing and documentation site for the Custom Signup Forms app.",
         repo: `${GH}/Custom-Signup-Forms-Website`,
+        website: "https://custom-signup-forms.codinative.com/",
       },
       {
         name: "Sticky-Add-to-Cart-Website",
         stack: "Next.js",
         description: "Marketing and documentation site for the Sticky Add to Cart app.",
         repo: `${GH}/Sticky-Add-to-Cart-Website`,
+        website: "https://sticky-add-to-cart.codinative.com/",
       },
       {
         name: "custom-shipping-rules-website",
         stack: "Next.js",
         description: "Marketing and documentation site for the Custom Shipping Rules app.",
         repo: `${GH}/custom-shipping-rules-website`,
+        website: "https://custom-shipping-rules.codinative.com/",
       },
     ],
   },
