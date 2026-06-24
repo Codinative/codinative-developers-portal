@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   ShieldCheck,
+  Globe,
   Menu,
   X,
 } from "lucide-react";
@@ -18,7 +19,7 @@ import { logout } from "@/actions/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
-  { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/qa", label: "QA", icon: ClipboardCheck },
   { href: "/secrets", label: "Secrets", icon: KeyRound },
@@ -26,7 +27,7 @@ const LINKS = [
 ];
 
 function isActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 function SidebarContent({
@@ -41,7 +42,7 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       <Link
-        href="/"
+        href="/dashboard"
         onClick={onNavigate}
         className="flex items-center gap-2 px-5 py-4 font-semibold"
       >
@@ -73,6 +74,14 @@ function SidebarContent({
       </nav>
 
       <div className="border-t border-gray-200 px-3 py-3 dark:border-gray-800">
+        <Link
+          href="/"
+          onClick={onNavigate}
+          className="mb-2 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+        >
+          <Globe className="h-4 w-4 shrink-0" />
+          Developer portal
+        </Link>
         {email && (
           <p className="truncate px-2 pb-2 text-xs text-gray-400 dark:text-gray-500" title={email}>
             {email}
@@ -102,7 +111,7 @@ export function Sidebar({ email }: { email?: string | null }) {
     <>
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white/80 px-4 backdrop-blur md:hidden dark:border-gray-800 dark:bg-gray-950/70">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+        <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white">
             <ShieldCheck className="h-4 w-4" />
           </span>
