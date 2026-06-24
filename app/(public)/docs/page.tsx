@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ShoppingBag, Terminal, ArrowUpRight } from "lucide-react";
+import { Wrench, ShoppingBag, Terminal, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Docs - Codinative Developers",
@@ -13,10 +13,16 @@ export default function DocsIndex() {
         Documentation
       </h1>
       <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
-        Platform guidelines for the team. Pick a track to get started.
+        Platform guidelines for the team. New here? Start with environment setup.
       </p>
 
       <div className="mt-8 grid gap-4">
+        <DocCard
+          href="/docs/environment"
+          icon={Wrench}
+          title="Environment setup"
+          desc="Install Node with NVM (Windows and macOS/Linux) and switch between versions."
+        />
         <DocCard
           href="/docs/bigcommerce"
           icon={ShoppingBag}
@@ -41,7 +47,7 @@ function DocCard({
   desc,
 }: {
   href: string;
-  icon: typeof ShoppingBag;
+  icon: typeof Wrench;
   title: string;
   desc: string;
 }) {

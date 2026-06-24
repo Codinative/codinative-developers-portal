@@ -1,31 +1,53 @@
 import type { Metadata } from "next";
-import { DocLayout, Section, Code, C, Callout, Steps } from "@/components/public/doc";
+import {
+  DocLayout,
+  Section,
+  Code,
+  C,
+  Callout,
+  Steps,
+  type TocItem,
+} from "@/components/public/doc";
 
 export const metadata: Metadata = {
   title: "Shopify guidelines - Codinative Developers",
 };
+
+const TOC: TocItem[] = [
+  { id: "prerequisites", title: "Prerequisites" },
+  { id: "authenticate", title: "Authenticate" },
+  { id: "pull", title: "Pull the theme" },
+  { id: "preview", title: "Preview locally" },
+  { id: "push", title: "Push the theme" },
+  { id: "versioning", title: "Versioning" },
+  { id: "reference", title: "Quick reference" },
+];
 
 export default function ShopifyDocs() {
   return (
     <DocLayout
       title="Shopify guidelines"
       intro="Set up the Shopify CLI and use the pull / preview / push workflow to develop themes safely. Examples use our Chaitonics store; swap in your store domain."
+      toc={TOC}
     >
-      <Section title="Prerequisites">
+      <Section id="prerequisites" title="Prerequisites">
         <p>Install Node.js, then the Shopify CLI and theme plugin:</p>
         <Code>{`npm install -g @shopify/cli @shopify/theme`}</Code>
         <p>Verify it is installed:</p>
         <Code>{`shopify version`}</Code>
         <Callout>
-          New to the team? Follow the NVM setup guide in the{" "}
-          <DocLink href="https://github.com/Codinative/developer-setup-guides">
-            developer-setup-guides
-          </DocLink>{" "}
-          repo first to get Node installed.
+          New to the team? Follow the{" "}
+          <a
+            href="/docs/environment"
+            className="font-medium text-indigo-600 underline-offset-2 transition hover:underline dark:text-indigo-300"
+          >
+            environment setup
+          </a>{" "}
+          guide first to get Node installed with NVM.
         </Callout>
       </Section>
 
-      <Section title="Authenticate">
+      <Section id="authenticate" title="Authenticate">
         <p>
           Authentication happens automatically the first time you run a theme command - it opens a
           browser window to log in with your Shopify account. No manual token setup is needed for
@@ -43,7 +65,7 @@ export default function ShopifyDocs() {
         </Callout>
       </Section>
 
-      <Section title="Pull the theme">
+      <Section id="pull" title="Pull the theme">
         <Code>{`# select a theme from a list
 shopify theme pull --store <your-store>.myshopify.com
 
@@ -54,7 +76,7 @@ shopify theme pull --store <your-store>.myshopify.com --theme 148283785355
 shopify theme pull --store <your-store>.myshopify.com --only assets/base.css`}</Code>
       </Section>
 
-      <Section title="Preview locally">
+      <Section id="preview" title="Preview locally">
         <p>
           Always preview before pushing. This serves your local files while the live store stays
           untouched.
@@ -64,7 +86,7 @@ shopify theme pull --store <your-store>.myshopify.com --only assets/base.css`}</
         <p>Local edits reflect instantly in the browser; customers see no changes.</p>
       </Section>
 
-      <Section title="Push the theme">
+      <Section id="push" title="Push the theme">
         <Steps>
           <li>
             <strong>As a new unpublished theme (recommended)</strong> - review before going live:
@@ -87,7 +109,7 @@ shopify theme pull --store <your-store>.myshopify.com --only assets/base.css`}</
         </Callout>
       </Section>
 
-      <Section title="Versioning convention">
+      <Section id="versioning" title="Versioning convention">
         <p>Name theme versions so the team knows what changed and when:</p>
         <Code>{`Chaitonics-v{major}.{minor}.{patch}-{DD-Mon-YYYY}
 
@@ -103,7 +125,7 @@ Chaitonics-v6.6.0-15-Apr-2026   <- new section/feature (bump minor)`}</Code>
         </ul>
       </Section>
 
-      <Section title="Quick reference">
+      <Section id="reference" title="Quick reference">
         <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-800">
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-gray-500 dark:bg-gray-950 dark:text-gray-400">
