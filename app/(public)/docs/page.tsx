@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wrench, ShoppingBag, Terminal, ArrowUpRight } from "lucide-react";
+import { Wrench, ShoppingBag, Terminal, Accessibility, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Docs - Codinative Developers",
@@ -34,6 +34,12 @@ export default function DocsIndex() {
           icon={Terminal}
           title="Shopify guidelines"
           desc="Install the Shopify CLI and use the pull, preview, and push workflow with our theme versioning convention."
+        />
+        <DocCard
+          href="/docs/accessibility"
+          icon={Accessibility}
+          title="Web accessibility and compliance"
+          desc="What WCAG and the ADA are, why stores get accessibility demand letters, the overlay-widget myth, and how a site is actually brought into compliance."
         />
       </div>
     </section>
