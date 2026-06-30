@@ -185,11 +185,11 @@ export const PROJECT_GROUPS: ProjectGroup[] = [
     blurb: "Tooling the Codinative team uses to build and ship everything else.",
     projects: [
       {
-        name: "Codinative-Apps-Dashboard",
+        name: "codinative-developers-portal",
         stack: "Next.js + NextAuth + Firebase",
         description:
           "This portal, plus the gated team workspace: a projects hub, QA checklists, and an AES-encrypted secrets vault.",
-        repo: `${GH}/Codinative-Apps-Dashboard`,
+        repo: `${GH}/codinative-developers-portal`,
       },
       {
         name: "developer-setup-guides",
