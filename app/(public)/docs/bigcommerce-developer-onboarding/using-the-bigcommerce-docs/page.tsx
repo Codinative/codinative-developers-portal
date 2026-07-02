@@ -49,7 +49,7 @@ export default function UsingTheDocs() {
           <li>
             <strong>Learn</strong> - structured learning plans and courses (we route you
             through these in the{" "}
-            <DocLink href="/docs/bigcommerce-mastery/learning-path">Guided Coursework</DocLink>{" "}
+            <DocLink href="/docs/bigcommerce-developer-onboarding/guided-coursework">Guided Coursework</DocLink>{" "}
             module).
           </li>
           <li>

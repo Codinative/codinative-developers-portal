@@ -10,7 +10,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - **BigCommerce Developer Onboarding** — a self-serve onboarding curriculum at
-  `/docs/bigcommerce-mastery` that ramps new developers without a senior guiding them live.
+  `/docs/bigcommerce-developer-onboarding` that ramps new developers without a senior guiding them live.
   - **Guided Coursework** — an interactive, strictly sequential tracker over BigCommerce's
     official Learn courses, curated into four phases (Foundations → Stencil → APIs → B2B).
     Progress is saved in the browser, a course only unlocks once the previous one is complete,
@@ -33,6 +33,14 @@ project adheres to [Semantic Versioning](https://semver.org/).
   card to the docs index.
 - Renamed the project from `codinative-dashboard` to `codinative-developers-portal`.
 
+### Security
+
+- Restricted the internal projects listing (`/what-we-built`) to signed-in team members — it was
+  previously public. Removed it from the middleware public allowlist, added a server-side
+  `auth()` guard, and moved the page into the authenticated dashboard (reachable via a
+  "What we built" sidebar link). Removed every public entry point (header nav, footer, and
+  the landing-page CTA + card) and scoped the landing "no login needed" copy to the docs.
+
 ## [1.0.0] - 2026-06-24
 
 ### Added
@@ -40,4 +48,4 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Public **Developers Portal** — landing page, documentation, and projects.
 - **Docs** — "on this page" navigation, an Environment setup guide, and BigCommerce & Shopify
   platform guidelines.
-- **/apps** — live app website links for each project.
+- **Projects listing** — live app website links for each project.

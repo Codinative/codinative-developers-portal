@@ -19,25 +19,25 @@ export default function DocsIndex() {
 
       <div className="mt-8 grid gap-4">
         <DocCard
-          href="/docs/bigcommerce-mastery"
+          href="/docs/bigcommerce-developer-onboarding"
           icon={GraduationCap}
           title="BigCommerce Developer Onboarding"
           desc="The full self-serve training path: themes, Handlebars, customization, REST & GraphQL APIs, apps, Catalyst & headless - from first tweak to advanced builds."
         />
         <DocCard
-          href="/docs/environment"
+          href="/docs/environment-setup"
           icon={Wrench}
           title="Environment setup"
           desc="Install Node with NVM (Windows and macOS/Linux) and switch between versions."
         />
         <DocCard
-          href="/docs/bigcommerce"
+          href="/docs/bigcommerce-guidelines"
           icon={ShoppingBag}
           title="BigCommerce guidelines"
           desc="Create API accounts, understand v2 vs v3 access tokens, and set up the Stencil CLI token for theme development."
         />
         <DocCard
-          href="/docs/shopify"
+          href="/docs/shopify-guidelines"
           icon={Terminal}
           title="Shopify guidelines"
           desc="Install the Shopify CLI and use the pull, preview, and push workflow with our theme versioning convention."

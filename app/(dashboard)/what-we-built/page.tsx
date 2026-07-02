@@ -1,16 +1,23 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { ArrowUpRight, Globe } from "lucide-react";
+import { auth } from "@/lib/auth";
 import { PROJECT_GROUPS, type Project } from "@/lib/portal-projects";
 
 export const metadata: Metadata = {
-  title: "Projects - Codinative Developers",
+  title: "What we built - Codinative Developers",
 };
 
-export default function AppsPage() {
+// Team-only: internal projects must not be exposed publicly. Middleware already
+// gates this route; this server-side check is defense in depth.
+export default async function AppsPage() {
+  const session = await auth();
+  if (!session?.user) redirect("/login");
+
   const total = PROJECT_GROUPS.reduce((n, g) => n + g.projects.length, 0);
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-12">
+    <section>
       <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
         What we have built
       </h1>

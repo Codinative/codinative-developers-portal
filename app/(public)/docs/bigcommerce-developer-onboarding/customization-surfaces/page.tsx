@@ -87,7 +87,7 @@ export default function CustomizationSurfaces() {
         <p>
           The deepest surface is the theme code itself, edited locally and pushed with the
           Stencil CLI (the Stencil Core &amp; Advanced courses in the{" "}
-          <DocLink href="/docs/bigcommerce-mastery/learning-path">Guided Coursework</DocLink>{" "}
+          <DocLink href="/docs/bigcommerce-developer-onboarding/guided-coursework">Guided Coursework</DocLink>{" "}
           cover this hands-on). This is the <strong>only</strong> way to change theme
           JavaScript and the right
           place for structural redesigns, new components, and anything that should live in

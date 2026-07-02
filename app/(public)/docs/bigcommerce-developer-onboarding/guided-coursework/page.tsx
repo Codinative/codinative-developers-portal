@@ -164,7 +164,7 @@ export default function LearningPathModule() {
             <strong>Node.js &amp; npm basics</strong> - you&rsquo;ll install and run the
             Stencil CLI with them. New to this? Start with{" "}
             <a
-              href="/docs/environment"
+              href="/docs/environment-setup"
               className="font-medium text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
             >
               Environment setup
@@ -233,19 +233,19 @@ export default function LearningPathModule() {
           <li>
             <strong>Then move on to Beyond the Courses.</strong> Once the courses are done,
             work through the essential follow-up modules -{" "}
-            <DocLink href="/docs/bigcommerce-mastery/customization-surfaces">
+            <DocLink href="/docs/bigcommerce-developer-onboarding/customization-surfaces">
               Customization Surfaces
             </DocLink>
             ,{" "}
-            <DocLink href="/docs/bigcommerce-mastery/apps-and-integrations">
+            <DocLink href="/docs/bigcommerce-developer-onboarding/apps-and-integrations">
               Apps &amp; Integrations
             </DocLink>
             ,{" "}
-            <DocLink href="/docs/bigcommerce-mastery/catalyst-and-headless">
+            <DocLink href="/docs/bigcommerce-developer-onboarding/catalyst-and-headless">
               Catalyst &amp; Headless
             </DocLink>
             , and{" "}
-            <DocLink href="/docs/bigcommerce-mastery/using-the-docs">Using the BigCommerce Docs</DocLink>{" "}
+            <DocLink href="/docs/bigcommerce-developer-onboarding/using-the-bigcommerce-docs">Using the BigCommerce Docs</DocLink>{" "}
             - which tie the courses to how Codinative actually builds.
           </li>
         </ul>

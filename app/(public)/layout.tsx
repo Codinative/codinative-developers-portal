@@ -23,9 +23,6 @@ export default function PublicLayout({
             <Link href="/docs" className="transition hover:text-gray-900 dark:hover:text-white">
               Docs
             </Link>
-            <Link href="/apps" className="transition hover:text-gray-900 dark:hover:text-white">
-              Projects
-            </Link>
             <Link href="/login" className="transition hover:text-gray-900 dark:hover:text-white">
               Team sign in
             </Link>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderKanban,
+  Boxes,
   ClipboardCheck,
   KeyRound,
   Settings,
@@ -21,6 +22,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const LINKS = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/what-we-built", label: "What we built", icon: Boxes },
   { href: "/qa", label: "QA", icon: ClipboardCheck },
   { href: "/secrets", label: "Secrets", icon: KeyRound },
   { href: "/settings", label: "Settings", icon: Settings },

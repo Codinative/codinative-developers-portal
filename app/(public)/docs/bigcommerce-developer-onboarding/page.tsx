@@ -25,7 +25,7 @@ type Module = {
 };
 
 const LEARNING_PATH: Module = {
-  href: "/docs/bigcommerce-mastery/learning-path",
+  href: "/docs/bigcommerce-developer-onboarding/guided-coursework",
   icon: GraduationCap,
   title: "Guided Coursework",
   desc: "The curated order to take BigCommerce's official training courses - Developer Foundations, Stencil Developer, and B2B Developer - with your progress tracked as you go. The heavy lifting of teaching the platform is done by BigCommerce; this is the map.",
@@ -35,31 +35,31 @@ const PATH_STATS = ["4 phases", "10 courses", "~84h of content"];
 
 const SUPPLEMENTARY: Module[] = [
   {
-    href: "/docs/bigcommerce-mastery/customization-surfaces",
+    href: "/docs/bigcommerce-developer-onboarding/customization-surfaces",
     icon: SlidersHorizontal,
     title: "Customization Surfaces",
     desc: "The low-level to high-level customization spectrum: CLI + SCSS/JS, custom templates, the Widgets API, WebDAV, the Code Editor, Script Manager, and Page Builder / Theme Styles.",
   },
   {
-    href: "/docs/bigcommerce-mastery/apps-and-integrations",
+    href: "/docs/bigcommerce-developer-onboarding/apps-and-integrations",
     icon: Blocks,
     title: "Apps & Integrations",
     desc: "Types of apps, the OAuth install flow, app extensions, the Next.js starter app, channels, BigDesign, and publishing to the marketplace.",
   },
   {
-    href: "/docs/bigcommerce-mastery/catalyst-and-headless",
+    href: "/docs/bigcommerce-developer-onboarding/catalyst-and-headless",
     icon: Rocket,
     title: "Catalyst & Headless",
     desc: "Catalyst (Next.js + React Server Components + Makeswift), fully headless patterns on the Storefront APIs, multi-storefront, and the WordPress plugin - what each is and when to reach for it.",
   },
   {
-    href: "/docs/bigcommerce-mastery/using-the-docs",
+    href: "/docs/bigcommerce-developer-onboarding/using-the-bigcommerce-docs",
     icon: Sparkles,
     title: "Using the BigCommerce Docs",
     desc: "Navigate the BigCommerce docs efficiently and use their AI tooling - Ask AI, Copy as Markdown, Open in Claude/ChatGPT, Connect to Cursor/Claude Code, the docs MCP server, and llms.txt.",
   },
   {
-    href: "/docs/bigcommerce-mastery/git-and-github",
+    href: "/docs/bigcommerce-developer-onboarding/git-and-github",
     icon: GitBranch,
     title: "Git & GitHub",
     desc: "The practical minimum to work day to day: staging and committing, branches, pushing, pull requests, merging, resolving conflicts, stashing, and rebasing - with hands-on resources to learn from.",

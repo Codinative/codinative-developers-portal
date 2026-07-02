@@ -9,26 +9,26 @@ export const DOCS_NAV: NavGroup[] = [
     title: "Get started",
     items: [
       { label: "All docs", href: "/docs" },
-      { label: "Environment setup", href: "/docs/environment" },
+      { label: "Environment setup", href: "/docs/environment-setup" },
     ],
   },
   {
     title: "Developer Onboarding",
     items: [
-      { label: "Overview", href: "/docs/bigcommerce-mastery" },
-      { label: "Guided Coursework", href: "/docs/bigcommerce-mastery/learning-path" },
-      { label: "Customization Surfaces", href: "/docs/bigcommerce-mastery/customization-surfaces" },
-      { label: "Apps & Integrations", href: "/docs/bigcommerce-mastery/apps-and-integrations" },
-      { label: "Catalyst & Headless", href: "/docs/bigcommerce-mastery/catalyst-and-headless" },
-      { label: "Using the BigCommerce Docs", href: "/docs/bigcommerce-mastery/using-the-docs" },
-      { label: "Git & GitHub", href: "/docs/bigcommerce-mastery/git-and-github" },
+      { label: "Overview", href: "/docs/bigcommerce-developer-onboarding" },
+      { label: "Guided Coursework", href: "/docs/bigcommerce-developer-onboarding/guided-coursework" },
+      { label: "Customization Surfaces", href: "/docs/bigcommerce-developer-onboarding/customization-surfaces" },
+      { label: "Apps & Integrations", href: "/docs/bigcommerce-developer-onboarding/apps-and-integrations" },
+      { label: "Catalyst & Headless", href: "/docs/bigcommerce-developer-onboarding/catalyst-and-headless" },
+      { label: "Using the BigCommerce Docs", href: "/docs/bigcommerce-developer-onboarding/using-the-bigcommerce-docs" },
+      { label: "Git & GitHub", href: "/docs/bigcommerce-developer-onboarding/git-and-github" },
     ],
   },
   {
     title: "Platform guidelines",
     items: [
-      { label: "BigCommerce guidelines", href: "/docs/bigcommerce" },
-      { label: "Shopify guidelines", href: "/docs/shopify" },
+      { label: "BigCommerce guidelines", href: "/docs/bigcommerce-guidelines" },
+      { label: "Shopify guidelines", href: "/docs/shopify-guidelines" },
     ],
   },
 ];

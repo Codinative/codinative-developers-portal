@@ -9,7 +9,6 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 const NAV = [
   { href: "/", label: "Home" },
   { href: "/docs", label: "Docs" },
-  { href: "/apps", label: "Projects" },
 ];
 
 function isActive(pathname: string, href: string): boolean {

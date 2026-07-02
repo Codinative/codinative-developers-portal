@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// Internal project catalogue for the public Developers Portal (/apps).
+// Internal project catalogue for the team-only projects page (/what-we-built).
 // Plain data so the page stays a Server Component. Add new projects here.
 // ----------------------------------------------------------------------------
 

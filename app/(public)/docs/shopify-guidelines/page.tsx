@@ -38,7 +38,7 @@ export default function ShopifyDocs() {
         <Callout>
           New to the team? Follow the{" "}
           <a
-            href="/docs/environment"
+            href="/docs/environment-setup"
             className="font-medium text-indigo-600 underline-offset-2 transition hover:underline dark:text-indigo-300"
           >
             environment setup

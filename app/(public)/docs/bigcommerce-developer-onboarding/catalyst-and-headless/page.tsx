@@ -59,7 +59,7 @@ export default function CatalystAndHeadless() {
           The <C>GraphQL Storefront API</C> is the heart of a headless build - its details
           (read-only products, token types, the Blueprint limitation, s2s deprecation) are
           covered by the GraphQL Storefront API course in the{" "}
-          <DocLink href="/docs/bigcommerce-mastery/learning-path">Guided Coursework</DocLink> and
+          <DocLink href="/docs/bigcommerce-developer-onboarding/guided-coursework">Guided Coursework</DocLink> and
           the official{" "}
           <DocLink href="https://docs.bigcommerce.com/developer/docs/storefront/guides/graphql-storefront-api/overview">
             GraphQL Storefront API guide

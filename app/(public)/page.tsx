@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   BookOpen,
-  Boxes,
   Store,
   ShoppingBag,
   Terminal,
@@ -27,8 +26,8 @@ export default function LandingPage() {
             The Codinative Developers Portal
           </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
-            One place for our engineering docs, platform guidelines, and a map of everything we
-            have built across BigCommerce and Shopify. Open to every developer - no login needed.
+            One place for our engineering docs and platform guidelines across BigCommerce and
+            Shopify - open to every developer, no login needed.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
@@ -38,10 +37,10 @@ export default function LandingPage() {
               Browse the docs <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/apps"
+              href="/login"
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
             >
-              See our projects
+              Team sign in
             </Link>
           </div>
         </div>
@@ -49,18 +48,12 @@ export default function LandingPage() {
 
       {/* What you get */}
       <section className="mx-auto max-w-6xl px-6 pb-8">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FeatureCard
             href="/docs"
             icon={BookOpen}
             title="Documentation"
             desc="Platform guidelines for BigCommerce and Shopify: tokens, CLIs, and team workflows."
-          />
-          <FeatureCard
-            href="/apps"
-            icon={Boxes}
-            title="Projects"
-            desc="A breakdown of every app, automation, and service we have built internally."
           />
           <FeatureCard
             href="/login"
@@ -78,13 +71,13 @@ export default function LandingPage() {
         </h2>
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <TrackCard
-            href="/docs/bigcommerce"
+            href="/docs/bigcommerce-guidelines"
             icon={ShoppingBag}
             title="BigCommerce"
             desc="Create API accounts, understand v2 vs v3 tokens, and set up the Stencil CLI for theme work."
           />
           <TrackCard
-            href="/docs/shopify"
+            href="/docs/shopify-guidelines"
             icon={Terminal}
             title="Shopify"
             desc="Install the Shopify CLI, then pull, preview, and push themes safely with our versioning convention."
