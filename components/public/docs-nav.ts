@@ -29,6 +29,7 @@ export const DOCS_NAV: NavGroup[] = [
     items: [
       { label: "BigCommerce guidelines", href: "/docs/bigcommerce-guidelines" },
       { label: "Shopify guidelines", href: "/docs/shopify-guidelines" },
+      { label: "Web accessibility", href: "/docs/accessibility" },
     ],
   },
 ];
