@@ -6,6 +6,7 @@ import {
   C,
   Callout,
   Steps,
+  DocLink,
   type TocItem,
 } from "@/components/public/doc";
 
@@ -170,18 +171,5 @@ stencil push       # bundle + upload the theme`}</Code>
         </ul>
       </Section>
     </DocLayout>
-  );
-}
-
-function DocLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-medium text-indigo-600 underline-offset-2 transition hover:underline dark:text-indigo-300"
-    >
-      {children}
-    </a>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { DocToc, type TocItem } from "@/components/public/DocToc";
+import { DocPager } from "@/components/public/DocPager";
 
 // Small, shared building blocks for the public docs pages (Server Components).
 
@@ -18,7 +19,7 @@ export function DocLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-5xl px-6 py-12">
+    <div className="py-10">
       <Link
         href="/docs"
         className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
@@ -26,17 +27,18 @@ export function DocLayout({
         <ArrowLeft className="h-4 w-4" /> All docs
       </Link>
 
-      <div className="mt-4 gap-12 lg:grid lg:grid-cols-[1fr_13rem]">
-        <article className="min-w-0">
+      <div className="mt-4 flex flex-col gap-10 xl:flex-row xl:gap-14">
+        <article className="min-w-0 xl:flex-1">
           <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             {title}
           </h1>
           {intro && <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">{intro}</p>}
           <div className="mt-10 space-y-10">{children}</div>
+          <DocPager />
         </article>
 
         {toc && toc.length > 0 && (
-          <aside className="hidden lg:block">
+          <aside className="hidden shrink-0 xl:block xl:w-56">
             <DocToc items={toc} />
           </aside>
         )}
@@ -99,5 +101,20 @@ export function Steps({ children }: { children: React.ReactNode }) {
     <ol className="ml-5 list-decimal space-y-2 text-sm leading-relaxed text-gray-600 marker:text-gray-400 dark:text-gray-300">
       {children}
     </ol>
+  );
+}
+
+// External link to an authoritative doc (opens in a new tab). Shared across all
+// docs pages so the curriculum can route out to BigCommerce consistently.
+export function DocLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="font-medium text-indigo-600 underline-offset-2 transition hover:underline dark:text-indigo-300"
+    >
+      {children}
+    </a>
   );
 }

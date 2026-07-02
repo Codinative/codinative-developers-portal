@@ -27,7 +27,7 @@ admin login) in a **single Firebase project of its own**:
 
 | Purpose | Project | Access the dashboard needs |
 |---|---|---|
-| Dashboard's own data | a dedicated **`codinative-dashboard`** project (create one) | read **and** write |
+| Dashboard's own data | a dedicated **`codinative-developers-portal`** project (create one) | read **and** write |
 
 It's reached with a **service account**.
 

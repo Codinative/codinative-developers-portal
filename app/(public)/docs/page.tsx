@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Wrench, ShoppingBag, Terminal, ArrowUpRight } from "lucide-react";
+import { Wrench, ShoppingBag, Terminal, GraduationCap, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Docs - Codinative Developers",
@@ -8,15 +8,22 @@ export const metadata: Metadata = {
 
 export default function DocsIndex() {
   return (
-    <section className="mx-auto max-w-3xl px-6 py-12">
+    <section className="max-w-3xl py-10">
       <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
         Documentation
       </h1>
       <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
-        Platform guidelines for the team. New here? Start with environment setup.
+        Platform guidelines for the team. New here? Start with the BigCommerce Developer
+        Onboarding curriculum, then set up your environment.
       </p>
 
       <div className="mt-8 grid gap-4">
+        <DocCard
+          href="/docs/bigcommerce-mastery"
+          icon={GraduationCap}
+          title="BigCommerce Developer Onboarding"
+          desc="The full self-serve training path: themes, Handlebars, customization, REST & GraphQL APIs, apps, Catalyst & headless - from first tweak to advanced builds."
+        />
         <DocCard
           href="/docs/environment"
           icon={Wrench}
