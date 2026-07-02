@@ -2,7 +2,10 @@
 
 All notable changes to the Codinative Developers Portal are documented in this file.
 
-## 2026-07-01
+The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
+project adheres to [Semantic Versioning](https://semver.org/).
+
+## [1.1.0] - 2026-07-02
 
 ### Added
 
@@ -29,3 +32,12 @@ All notable changes to the Codinative Developers Portal are documented in this f
 - Promoted the shared `DocLink` helper into the doc component library; added the Onboarding
   card to the docs index.
 - Renamed the project from `codinative-dashboard` to `codinative-developers-portal`.
+
+## [1.0.0] - 2026-06-24
+
+### Added
+
+- Public **Developers Portal** — landing page, documentation, and projects.
+- **Docs** — "on this page" navigation, an Environment setup guide, and BigCommerce & Shopify
+  platform guidelines.
+- **/apps** — live app website links for each project.
