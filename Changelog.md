@@ -24,6 +24,9 @@ project adheres to [Semantic Versioning](https://semver.org/).
   navigation order (`docs-nav.ts`) so the sidebar and pager never drift.
 - **Custom illustration components** (`diagram.tsx`) — responsive, dark-mode-aware `Flow`,
   `FileTree`, `Spectrum`, `Matrix`, `DecisionTree`, and `Timeline` primitives.
+- **Web accessibility & compliance guide** (`/docs/accessibility`) — a plain-language guide
+  to WCAG, the ADA and accessibility demand letters, the overlay-widget myth, and how a site
+  is actually brought into compliance. Added to the docs sidebar under Platform guidelines.
 
 ### Changed
 
