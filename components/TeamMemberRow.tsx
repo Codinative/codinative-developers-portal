@@ -2,21 +2,32 @@
 
 import { useState, useTransition } from "react";
 import { KeyRound, Trash2, Check, X } from "lucide-react";
-import { resetTeamUserPassword, deleteTeamUser } from "@/actions/users";
+import { resetTeamUserPassword, deleteTeamUser, updateTeamUserRole } from "@/actions/users";
 
 type Props = {
   id: string;
   email: string;
   name: string;
+  role: "owner" | "member";
   createdAt: string;
 };
 
-export function TeamMemberRow({ id, email, name, createdAt }: Props) {
+export function TeamMemberRow({ id, email, name, role, createdAt }: Props) {
   const [resetting, setResetting] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [roleError, setRoleError] = useState<string | null>(null);
   const [isSaving, startSave] = useTransition();
   const [isDeleting, startDelete] = useTransition();
+  const [isChangingRole, startRoleChange] = useTransition();
+
+  function handleRoleChange(next: "owner" | "member") {
+    setRoleError(null);
+    startRoleChange(async () => {
+      const res = await updateTeamUserRole(id, next);
+      if (!res.success) setRoleError(res.error ?? "Failed to update role.");
+    });
+  }
 
   function handleReset() {
     setError(null);
@@ -49,6 +60,20 @@ export function TeamMemberRow({ id, email, name, createdAt }: Props) {
       </td>
       <td className="px-4 py-3 font-mono text-sm break-all text-gray-600 dark:text-gray-400">
         {email}
+      </td>
+      <td className="px-4 py-3 text-sm whitespace-nowrap">
+        <select
+          value={role}
+          disabled={isChangingRole}
+          onChange={(e) => handleRoleChange(e.target.value as "owner" | "member")}
+          className="rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300"
+        >
+          <option value="member">Member</option>
+          <option value="owner">Owner</option>
+        </select>
+        {roleError && (
+          <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{roleError}</p>
+        )}
       </td>
       <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-400 dark:text-gray-500">
         {createdAt ? new Date(createdAt).toLocaleDateString() : "—"}

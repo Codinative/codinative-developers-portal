@@ -18,6 +18,7 @@ export function AddTeamMemberForm() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState<"owner" | "member">("member"); // least privilege by default
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -31,12 +32,13 @@ export function AddTeamMemberForm() {
       return;
     }
     startTransition(async () => {
-      const res = await createTeamUser(email.trim(), name.trim(), password);
+      const res = await createTeamUser(email.trim(), name.trim(), password, role);
       if (res.success) {
         setDone(`Login created for ${email.trim()}. Share the email + password with them.`);
         setEmail("");
         setName("");
         setPassword("");
+        setRole("member");
       } else {
         setError(res.error ?? "Failed to create login.");
       }
@@ -99,6 +101,20 @@ export function AddTeamMemberForm() {
             Generate
           </button>
         </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Role
+        </label>
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value as "owner" | "member")}
+          className={`${inputCls} sm:w-1/3`}
+        >
+          <option value="member">Member — no team management</option>
+          <option value="owner">Owner — full access</option>
+        </select>
       </div>
 
       {error && <p className="text-sm text-rose-600 dark:text-rose-400">{error}</p>}

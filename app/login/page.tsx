@@ -54,6 +54,10 @@ export default function LoginPage() {
       } else {
         const err = await completeLogin(email, password);
         if (err) setError(err);
+        // Hard navigation (not router.push) so the browser sees a real page
+        // load right after the password was submitted — this is what
+        // triggers the "save password?" prompt.
+        else window.location.href = "/dashboard";
       }
     });
   }
@@ -68,6 +72,8 @@ export default function LoginPage() {
       if (err) {
         setError(err);
         submittedFor.current = ""; // allow retry of same digits after a failure
+      } else {
+        window.location.href = "/dashboard";
       }
     });
   }
@@ -122,6 +128,7 @@ export default function LoginPage() {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 required
                 autoComplete="email"
@@ -136,6 +143,7 @@ export default function LoginPage() {
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 required
                 autoComplete="current-password"

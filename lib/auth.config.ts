@@ -44,12 +44,16 @@ export const authConfig = {
       return isLoggedIn;
     },
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
       return token;
     },
     async session({ session, token }) {
       if (session.user && typeof token.id === "string") {
         session.user.id = token.id;
+        session.user.role = (token.role as "owner" | "member" | undefined) ?? "member";
       }
       return session;
     },

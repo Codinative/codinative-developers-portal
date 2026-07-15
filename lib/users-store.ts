@@ -14,11 +14,14 @@ import { getEffectiveAdmin } from "@/lib/admin-config";
 
 const COLLECTION = "dashboardUsers";
 
+export type TeamRole = "owner" | "member";
+
 export type DashboardUser = {
   id: string;
   email: string;
   name: string;
   passwordHash: string; // server-side only — never send to the browser
+  role: TeamRole;
   createdAt: string;
   createdBy: string;
 };
@@ -28,6 +31,7 @@ export type DashboardUserSummary = {
   id: string;
   email: string;
   name: string;
+  role: TeamRole;
   createdAt: string;
   createdBy: string;
 };
@@ -48,6 +52,12 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+// Docs created before the role field existed default to "member" — the
+// least-privileged role, not an accidental promotion.
+function readRole(d: { role?: unknown }): TeamRole {
+  return d.role === "owner" ? "owner" : "member";
+}
+
 // --- reads -----------------------------------------------------------------
 
 export async function findUserByEmail(email: string): Promise<DashboardUser | null> {
@@ -66,6 +76,27 @@ export async function findUserByEmail(email: string): Promise<DashboardUser | nu
       email: d.email,
       name: typeof d.name === "string" ? d.name : d.email,
       passwordHash: d.passwordHash,
+      role: readRole(d),
+      createdAt: d.createdAt?.toDate?.()?.toISOString() ?? "",
+      createdBy: typeof d.createdBy === "string" ? d.createdBy : "admin",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function findUserById(id: string): Promise<DashboardUser | null> {
+  try {
+    const doc = await getDashboardDb().collection(COLLECTION).doc(id).get();
+    if (!doc.exists) return null;
+    const d = doc.data();
+    if (!d || typeof d.email !== "string" || typeof d.passwordHash !== "string") return null;
+    return {
+      id: doc.id,
+      email: d.email,
+      name: typeof d.name === "string" ? d.name : d.email,
+      passwordHash: d.passwordHash,
+      role: readRole(d),
       createdAt: d.createdAt?.toDate?.()?.toISOString() ?? "",
       createdBy: typeof d.createdBy === "string" ? d.createdBy : "admin",
     };
@@ -88,6 +119,7 @@ export async function listUsers(): Promise<DashboardUserSummary[]> {
         id: doc.id,
         email: typeof d.email === "string" ? d.email : "",
         name: typeof d.name === "string" ? d.name : "",
+        role: readRole(d),
         createdAt: d.createdAt?.toDate?.()?.toISOString() ?? "",
         createdBy: typeof d.createdBy === "string" ? d.createdBy : "admin",
       };
@@ -113,10 +145,11 @@ export async function resolveLogin(
     return { id: "admin", email: admin.email, name: "Admin", role: "owner" };
   }
 
-  // 2) Team member.
+  // 2) Team member — role comes from their own stored record, so an owner
+  // can promote/demote a teammate via the Team tab.
   const user = await findUserByEmail(e);
   if (user && (await bcrypt.compare(password, user.passwordHash))) {
-    return { id: user.id, email: user.email, name: user.name || user.email, role: "member" };
+    return { id: user.id, email: user.email, name: user.name || user.email, role: user.role };
   }
 
   return null;
@@ -129,6 +162,7 @@ export async function createUser(input: {
   name: string;
   password: string;
   createdBy: string;
+  role?: TeamRole;
 }): Promise<StoreResult> {
   const email = normalizeEmail(input.email);
   const name = input.name?.trim() || email;
@@ -159,10 +193,20 @@ export async function createUser(input: {
     email,
     name,
     passwordHash: await bcrypt.hash(input.password, 12),
+    role: input.role === "owner" ? "owner" : "member", // default: least privilege
     createdAt: FieldValue.serverTimestamp(),
     createdBy: input.createdBy,
   });
 
+  return { success: true };
+}
+
+export async function updateUserRole(id: string, role: TeamRole): Promise<StoreResult> {
+  if (!id) return { success: false, error: "Missing user id." };
+  await getDashboardDb()
+    .collection(COLLECTION)
+    .doc(id)
+    .update({ role, updatedAt: FieldValue.serverTimestamp() });
   return { success: true };
 }
 

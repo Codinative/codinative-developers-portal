@@ -55,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           /* already handled inside sendLoginAlert */
         }
 
-        return { id: account.id, email: account.email, name: account.name };
+        return { id: account.id, email: account.email, name: account.name, role: account.role };
       },
     }),
   ],

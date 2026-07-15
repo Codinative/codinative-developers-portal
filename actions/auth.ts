@@ -51,11 +51,15 @@ export async function completeLogin(
   code?: string,
 ): Promise<string | undefined> {
   try {
+    // redirect: false — the client does a hard navigation on success instead
+    // (see app/login/page.tsx). A soft RSC navigation from inside the action
+    // never looks like a real form submission to the browser, so Chrome/Edge/
+    // Safari never offer to save the password; a real page load does.
     await signIn("credentials", {
       email,
       password,
       code: code ?? "",
-      redirectTo: "/dashboard",
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -63,7 +67,7 @@ export async function completeLogin(
         ? "Invalid or expired code"
         : "Invalid email or password";
     }
-    throw error; // redirect on success
+    throw error;
   }
 }
 
