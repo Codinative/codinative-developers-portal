@@ -22,14 +22,16 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
       const { pathname } = nextUrl;
 
-      // Public Developer Portal routes — viewable without a session. The
-      // projects listing (/what-we-built) is intentionally NOT public: it exposes
-      // internal company projects and is restricted to signed-in team members.
+      // Public Developer Portal routes — viewable without a session. The docs are
+      // public EXCEPT the team-only Development Process guide, which exposes our
+      // internal workflow and is restricted to signed-in team members — like the
+      // projects listing (/what-we-built).
       const isPublicRoute =
         pathname === "/" ||
         pathname === "/login" ||
         pathname === "/docs" ||
-        pathname.startsWith("/docs/");
+        (pathname.startsWith("/docs/") &&
+          pathname !== "/docs/bigcommerce-developer-onboarding/development-process");
 
       // Send already-authenticated users away from the login screen.
       if (pathname === "/login") {

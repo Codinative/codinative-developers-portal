@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function DocsIndex() {
   return (
-    <section className="max-w-3xl py-10">
+    <section className="mx-auto max-w-3xl py-10">
       <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
         Documentation
       </h1>

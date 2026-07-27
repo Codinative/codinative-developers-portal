@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { DocToc, type TocItem } from "@/components/public/DocToc";
 import { DocPager } from "@/components/public/DocPager";
 
@@ -19,15 +17,8 @@ export function DocLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="py-10">
-      <Link
-        href="/docs"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" /> All docs
-      </Link>
-
-      <div className="mt-4 flex flex-col gap-10 xl:flex-row xl:gap-14">
+    <div className="mx-auto max-w-5xl py-10">
+      <div className="flex flex-col gap-10 xl:flex-row xl:gap-14">
         <article className="min-w-0 xl:flex-1">
           <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
             {title}

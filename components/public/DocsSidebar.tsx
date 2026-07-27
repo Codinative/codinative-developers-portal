@@ -11,10 +11,10 @@ export function DocsSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-60 shrink-0 lg:block">
+    <aside className="hidden w-60 shrink-0 border-r border-gray-200 lg:block dark:border-gray-800">
       <nav
         aria-label="Documentation"
-        className="sticky top-20 max-h-[calc(100vh-6rem)] space-y-6 overflow-y-auto py-10 pr-2"
+        className="sticky top-20 max-h-[calc(100vh-6rem)] space-y-6 overflow-y-auto py-10 pr-6"
       >
         {DOCS_NAV.map((group) => (
           <div key={group.title}>

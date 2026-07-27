@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
   GraduationCap,
@@ -10,8 +9,11 @@ import {
   Blocks,
   Rocket,
   Sparkles,
+  Workflow,
+  Lock,
   type LucideIcon,
 } from "lucide-react";
+import { auth } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "BigCommerce Developer Onboarding - Codinative Developers",
@@ -22,6 +24,7 @@ type Module = {
   icon: LucideIcon;
   title: string;
   desc: string;
+  teamOnly?: boolean;
 };
 
 const LEARNING_PATH: Module = {
@@ -66,16 +69,23 @@ const SUPPLEMENTARY: Module[] = [
   },
 ];
 
-export default function MasteryHub() {
-  return (
-    <div className="max-w-5xl py-10">
-      <Link
-        href="/docs"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-      >
-        <ArrowLeft className="h-4 w-4" /> All docs
-      </Link>
+// Team-only module — appended last in Beyond the Courses for signed-in members only.
+const TEAM_MODULES: Module[] = [
+  {
+    href: "/docs/bigcommerce-developer-onboarding/development-process",
+    icon: Workflow,
+    title: "Development Process",
+    desc: "How we actually build at Codinative: the .claude process kit + Claude Code workflow - the mental model, Day-0 setup, the Definition of Done, pair-reviewed PRs, releases, and the hard rules. Read it before your first project.",
+    teamOnly: true,
+  },
+];
 
+export default async function MasteryHub() {
+  const session = await auth();
+  const beyondModules = session?.user ? [...SUPPLEMENTARY, ...TEAM_MODULES] : SUPPLEMENTARY;
+
+  return (
+    <div className="mx-auto max-w-5xl py-10">
       <header className="mt-4">
         <p className="text-sm font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-300">
           Self-serve curriculum
@@ -129,7 +139,7 @@ export default function MasteryHub() {
           connect the official courses to how Codinative actually builds.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          {SUPPLEMENTARY.map((m) => (
+          {beyondModules.map((m) => (
             <ModuleCard key={m.href} {...m} />
           ))}
         </div>
@@ -185,7 +195,7 @@ function FeaturedCard({
   );
 }
 
-function ModuleCard({ href, icon: Icon, title, desc }: Module) {
+function ModuleCard({ href, icon: Icon, title, desc, teamOnly }: Module) {
   return (
     <Link
       href={href}
@@ -195,9 +205,16 @@ function ModuleCard({ href, icon: Icon, title, desc }: Module) {
         <Icon className="h-5 w-5" />
       </span>
       <div>
-        <h3 className="flex items-center justify-between font-medium text-gray-900 dark:text-gray-100">
-          {title}
-          <ArrowUpRight className="h-4 w-4 text-gray-300 transition group-hover:text-indigo-500 dark:text-gray-600" />
+        <h3 className="flex items-center justify-between gap-2 font-medium text-gray-900 dark:text-gray-100">
+          <span className="inline-flex items-center gap-2">
+            {title}
+            {teamOnly && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-gray-500 uppercase dark:bg-gray-800 dark:text-gray-400">
+                <Lock className="h-2.5 w-2.5" /> Team only
+              </span>
+            )}
+          </span>
+          <ArrowUpRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:text-indigo-500 dark:text-gray-600" />
         </h3>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{desc}</p>
       </div>
