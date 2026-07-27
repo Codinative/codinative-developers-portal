@@ -56,7 +56,7 @@ export default async function DevelopmentProcess() {
       </Callout>
 
       <Callout tone="warn">
-        <strong>Process repo:</strong> <C>&lt;ADD THE KIT REPO URL HERE&gt;</C> &mdash; clone it to
+        <strong>Process repo:</strong> <C>&lt;https://github.com/Codinative/bigcommerce-theme-customization-process.git&gt;</C> &mdash; clone it to
         use the kit and browse the latest rules. (Placeholder &mdash; fill this in.)
       </Callout>
 
@@ -360,7 +360,7 @@ export default async function DevelopmentProcess() {
           <li>Delete or keep the branch (Claude asks; &sect;12).</li>
         </Steps>
         <Callout tone="warn">
-          <strong>PR flow tutorial:</strong> <C>&lt;ADD LINK / STEP-BY-STEP HERE&gt;</C> &mdash; our
+          <strong>PR flow tutorial:</strong> <C>&lt;https://www.youtube.com/watch?v=GubUV_nLdY8&gt;</C> &mdash; our
           exact PR + pair-review process (opening the PR, assigning the reviewer, the checklist,
           merge/squash settings, branch cleanup). Placeholder &mdash; fill this in.
         </Callout>
