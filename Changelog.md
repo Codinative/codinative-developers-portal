@@ -5,6 +5,25 @@ All notable changes to the Codinative Developers Portal are documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-07-27
+
+### Added
+
+- **Development Process guide** — a team-only page at
+  `/docs/bigcommerce-developer-onboarding/development-process` documenting the Codinative
+  BigCommerce theme-customization process (the `.claude` kit + Claude Code workflow): the mental
+  model, prerequisites, Day-0 setup, the Definition of Done, pair-reviewed PRs, releases, git &
+  consent, and the hard rules. Gated to signed-in team members (middleware + an `auth()` guard)
+  and surfaced as the last module of the Developer Onboarding curriculum — shown only when signed in.
+- **App favicon** — a ShieldCheck brand mark (`app/icon.svg`), served publicly via a middleware
+  matcher exclusion.
+
+### Changed
+
+- **Docs reading layout** — a sidebar divider (right border), a capped and centered reading column
+  with more left/right padding, and full grid lines in doc tables, for a cleaner, more readable
+  layout on wide screens.
+
 ## [1.1.0] - 2026-07-02
 
 ### Added
