@@ -5,6 +5,25 @@ All notable changes to the Codinative Developers Portal are documented in this f
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Quick Start** — a hands-on hub at `/docs/quick-start` for learning by building.
+  - **Stencil Theme Development in 5 Days** — a guided week at `/docs/quick-start/stencil-theme`
+    with a tab per day and per-browser completion tracking: (1) theme setup — nvm/Node, Stencil
+    CLI, Stencil-CLI token, Cornerstone, `stencil init`, config.json ↔ schema.json ↔ Page Builder,
+    Handlebars, a custom page with its own URL, bundle/push/pull; (2) JavaScript & React in
+    Cornerstone; (3) the GraphQL Storefront API; (4) REST Storefront vs Management APIs, with
+    prominent security warnings, and add to cart; (5) a Build Your Set capstone. Code in the
+    lessons was verified against Cornerstone 6.21 (webpack build, ESLint, Jest).
+  - **Coming soon** cards for the 1-day Widget Builder and 5-day App quick starts.
+- **Developer's Guide to the BigCommerce Admin Panel** at `/docs/bigcommerce-admin-panel` —
+  which token to use when, themes, Page Builder, products, options & variants, categories,
+  brands, web pages, images, Script Manager, test orders and settings, with screenshot slots.
+- Doc building blocks: `SecurityAlert`, `Task`, `Checkpoint`, `CodeFile`, and `Screenshot` (shows a
+  placeholder until the image exists under `public/docs/screenshots/`).
+
 ## [1.2.0] - 2026-07-27
 
 ### Added

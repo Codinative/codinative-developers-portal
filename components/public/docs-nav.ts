@@ -1,6 +1,13 @@
 // Single source of truth for docs navigation - used by both the left sidebar
 // index and the prev/next pager so their order never drifts apart.
 
+import {
+  ADMIN_GUIDE_HREF,
+  QUICK_START_HREF,
+  STENCIL_DAYS,
+  STENCIL_TRACK_HREF,
+} from "./quick-start";
+
 export type NavItem = { label: string; href: string };
 export type NavGroup = { title: string; items: NavItem[] };
 
@@ -10,6 +17,15 @@ export const DOCS_NAV: NavGroup[] = [
     items: [
       { label: "All docs", href: "/docs" },
       { label: "Environment setup", href: "/docs/environment-setup" },
+    ],
+  },
+  {
+    title: "Quick Start",
+    items: [
+      { label: "All quick starts", href: QUICK_START_HREF },
+      { label: "Stencil in 5 days", href: STENCIL_TRACK_HREF },
+      ...STENCIL_DAYS.map((d) => ({ label: `Day ${d.day} · ${d.short}`, href: d.href })),
+      { label: "Admin panel guide", href: ADMIN_GUIDE_HREF },
     ],
   },
   {

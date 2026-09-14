@@ -5,14 +5,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShieldCheck, Menu, X, LogIn } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { QUICK_START_HREF } from "@/components/public/quick-start";
 
 const NAV = [
   { href: "/", label: "Home" },
+  { href: QUICK_START_HREF, label: "Quick Start" },
   { href: "/docs", label: "Docs" },
 ];
 
 function isActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  if (href === "/") return pathname === "/";
+  // Quick Start lives under /docs, so "Docs" shouldn't also light up there.
+  if (href === "/docs" && pathname.startsWith(QUICK_START_HREF)) return false;
+  return pathname.startsWith(href);
 }
 
 export function PublicHeader() {
