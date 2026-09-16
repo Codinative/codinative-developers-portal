@@ -7,6 +7,7 @@ import {
   GraduationCap,
   Accessibility,
   ArrowUpRight,
+  Rocket,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -20,11 +21,17 @@ export default function DocsIndex() {
         Documentation
       </h1>
       <p className="mt-3 text-lg text-gray-600 dark:text-gray-300">
-        Platform guidelines for the team. New here? Start with the BigCommerce Developer
-        Onboarding curriculum, then set up your environment.
+        Platform guidelines for the team. New here? Build something real with the Quick Start,
+        then deepen it with the BigCommerce Developer Onboarding curriculum.
       </p>
 
       <div className="mt-8 grid gap-4">
+        <DocCard
+          href="/docs/quick-start"
+          icon={Rocket}
+          title="Quick Start"
+          desc="Learn by building: the 5-day Stencil theme development track (setup, JS & React, GraphQL, REST, a Build Your Set capstone) plus a developer's guide to the admin panel."
+        />
         <DocCard
           href="/docs/bigcommerce-developer-onboarding"
           icon={GraduationCap}

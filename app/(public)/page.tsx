@@ -7,7 +7,14 @@ import {
   Terminal,
   ArrowRight,
   ArrowUpRight,
+  CalendarDays,
+  Rocket,
 } from "lucide-react";
+import {
+  QUICK_START_HREF,
+  STENCIL_DAYS,
+  STENCIL_TRACK_HREF,
+} from "@/components/public/quick-start";
 
 export const metadata: Metadata = {
   title: "Codinative Developers Portal",
@@ -31,19 +38,64 @@ export default function LandingPage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/docs"
+              href={QUICK_START_HREF}
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500"
+            >
+              <Rocket className="h-4 w-4" /> Quick Start
+            </Link>
+            <Link
+              href="/docs"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
             >
               Browse the docs <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               Team sign in
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Quick Start highlight */}
+      <section className="mx-auto max-w-6xl px-6 pb-8">
+        <Link
+          href={STENCIL_TRACK_HREF}
+          className="group block rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 transition hover:border-indigo-300 hover:shadow-lg sm:p-8 dark:border-indigo-500/30 dark:from-indigo-500/10 dark:to-gray-900 dark:hover:border-indigo-500/50"
+        >
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-white uppercase">
+                <CalendarDays className="h-3 w-3" /> New &middot; 5-day Quick Start
+              </span>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-50">
+                Ship your first BigCommerce Stencil feature this week
+              </h2>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+                A hands-on, day-by-day track: set up Cornerstone, add JavaScript and React, query
+                GraphQL, add to cart with the REST API, and finish with a real Build Your Set page.
+              </p>
+              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 transition group-hover:gap-2.5 dark:text-indigo-300">
+                Start Day 1 <ArrowRight className="h-4 w-4" />
+              </span>
+            </div>
+            <ol className="grid shrink-0 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+              {STENCIL_DAYS.map((d) => (
+                <li
+                  key={d.slug}
+                  className="flex items-center gap-2.5 rounded-lg bg-white/70 px-3 py-2 text-sm text-gray-700 ring-1 ring-indigo-100 ring-inset dark:bg-gray-900/60 dark:text-gray-300 dark:ring-indigo-500/20"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[11px] font-semibold text-white">
+                    {d.day}
+                  </span>
+                  {d.title}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Link>
       </section>
 
       {/* What you get */}
